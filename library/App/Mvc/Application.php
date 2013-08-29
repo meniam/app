@@ -5,6 +5,7 @@ namespace App\Mvc;
 use App\Exception\InvalidArgumentException;
 use App\Mvc\Controller\AbstractAction;
 use App\ServiceManager\ServiceManager;
+use Zend\ServiceManager\Config;
 use App\Http\Request;
 use App\Http\Response;
 use App\Loader\Autoloader;
@@ -100,9 +101,7 @@ class Application implements ApplicationInterface
         $this->getRequest()->setParams($params);
 
         // Диспетчим данные
-        $this->dispatch($this->getRequest(), $this->getResponse());
-
-        return $this->getResponse();
+        return $this->dispatch($this->getRequest(), $this->getResponse());
     }
 
     /**
@@ -111,7 +110,7 @@ class Application implements ApplicationInterface
     protected function route()
     {
         if (!isset($this->config['routes'])) {
-            return;
+            return false;
         }
 
         $routes = $this->config['routes'];
@@ -159,61 +158,16 @@ class Application implements ApplicationInterface
         return $return;
     }
 
-    public function dispatch(Request $request, Response $response)
+    /**
+     * @param Request $request
+     * @return Response
+     */
+    public function dispatch(Request $request)
     {
         $blockManger = $this->getBlockManager();
         $block = $blockManger->getBlock($request->getParam('block'));
 
-        $response = $blockManger->renderBlock($block);
-        echo $response;
-        return;
-        die;
-
-
-        $controllerParam = $request->getParam('controller', 'Error');
-        $actionParam     = $request->getParam('action', 'error404');
-
-        $controllerClass = 'Application\\Controller\\' . implode('', array_map('ucfirst', explode('-', $controllerParam))) . 'Controller';
-        $actionMethod    = implode('', array_map('ucfirst', explode('-', $actionParam)))     . 'Action';
-        $actionMethod    = strtolower(substr($actionMethod, 0, 1)) . substr($actionMethod, 1);
-
-        if (!Autoloader::getInstance()->load($controllerClass)) {
-            $controllerClass = 'Application\\Controller\\ErrorController';
-            $actionMethod = 'error404Action';
-        }
-
-        /** @var $controller AbstractAction */
-        $controller = new $controllerClass($request, $response);
-
-        $classMethods = get_class_methods($controller);
-        if (!in_array($actionMethod, get_class_methods($controller))) {
-            $controllerClass = 'Application\\Controller\\ErrorController';
-            $actionMethod = 'error404Action';
-
-            /** @var $controller AbstractAction */
-            $controller = new $controllerClass($request, $response);
-        }
-
-        if (in_array('preDispatch', $classMethods)) {
-            $controller->preDispatch();
-        }
-
-        $forward = $controller->getForward();
-        if (!$controller->getBreakRun() && empty($forward)) {
-            $actionResponse = $controller->$actionMethod();
-
-            if (in_array('postDispatch', $classMethods)) {
-                $controller->postDispatch($actionResponse);
-            }
-        }
-
-        if (!empty($forward)) {
-            $request->setParams($forward);
-            $controller->removeForward();
-            return $this->dispatch($request, $response);
-        }
-
-        return $response;
+        return $blockManger->renderBlock($block);
     }
 
     /**
@@ -230,7 +184,7 @@ class Application implements ApplicationInterface
     public static function init($configuration = array())
     {
         $smConfig = isset($configuration['service_manager']) ? $configuration['service_manager'] : array();
-        $serviceManager = new ServiceManager(new \Zend\ServiceManager\Config($smConfig));
+        $serviceManager = new ServiceManager(new Config($smConfig));
 
         if (!$serviceManager->has('block_manager')) {
             throw new InvalidArgumentException('Block manager not located in ServiceManger');
