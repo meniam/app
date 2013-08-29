@@ -1,0 +1,1445 @@
+<?php
+
+ return array (
+  'name' => 'sidebar',
+  'pos' => NULL,
+  'show' => true,
+  'type' => 'real',
+  'label' => 'Side bar',
+  'param' => 
+  array (
+    'show' => 
+    array (
+      'name' => 'show',
+      'type' => 'boolean',
+      'value' => true,
+      'default' => NULL,
+      'pos' => NULL,
+    ),
+    'string1' => 
+    array (
+      'name' => 'string1',
+      'type' => 'string',
+      'value' => 'string value',
+      'default' => NULL,
+      'pos' => NULL,
+    ),
+    'string2' => 
+    array (
+      'name' => 'string2',
+      'type' => 'string',
+      'value' => NULL,
+      'default' => NULL,
+      'pos' => NULL,
+    ),
+    'string3' => 
+    array (
+      'name' => 'string3',
+      'type' => 'string',
+      'value' => 'some value',
+      'default' => NULL,
+      'pos' => NULL,
+    ),
+    'true1' => 
+    array (
+      'name' => 'true1',
+      'type' => 'boolean',
+      'value' => true,
+      'default' => NULL,
+      'pos' => NULL,
+    ),
+    'true2' => 
+    array (
+      'name' => 'true2',
+      'type' => 'boolean',
+      'value' => true,
+      'default' => NULL,
+      'pos' => NULL,
+    ),
+    'true3' => 
+    array (
+      'name' => 'true3',
+      'type' => 'boolean',
+      'value' => true,
+      'default' => NULL,
+      'pos' => NULL,
+    ),
+    'false1' => 
+    array (
+      'name' => 'false1',
+      'type' => 'boolean',
+      'value' => true,
+      'default' => NULL,
+      'pos' => NULL,
+    ),
+    'false2' => 
+    array (
+      'name' => 'false2',
+      'type' => 'boolean',
+      'value' => true,
+      'default' => NULL,
+      'pos' => NULL,
+    ),
+    'false3' => 
+    array (
+      'name' => 'false3',
+      'type' => 'boolean',
+      'value' => true,
+      'default' => NULL,
+      'pos' => NULL,
+    ),
+    'css_class' => 
+    array (
+      'name' => 'css_class',
+      'type' => 'boolean',
+      'value' => false,
+      'default' => NULL,
+      'pos' => NULL,
+      'test' => 
+      array (
+        'name' => 'test',
+        'type' => 'string',
+        'value' => 'Some value',
+        'default' => NULL,
+        'pos' => NULL,
+      ),
+    ),
+  ),
+  'inner_block' => 
+  array (
+    'param' => 
+    array (
+      'show' => 
+      array (
+        'name' => 'show',
+        'type' => 'boolean',
+        'value' => true,
+        'default' => NULL,
+        'pos' => '1000',
+      ),
+      'css_class' => 
+      array (
+        'name' => 'css_class',
+        'type' => 'boolean',
+        'value' => false,
+        'default' => NULL,
+        'pos' => NULL,
+      ),
+    ),
+  ),
+  'block' => 
+  array (
+    'center_column2' => 
+    array (
+      'name' => 'center_column2',
+      'pos' => 1,
+      'show' => true,
+      'type' => 'real',
+      'label' => 'Layout center column',
+      'param' => 
+      array (
+      ),
+      'inner_block' => NULL,
+      'block' => 
+      array (
+        'center_column_header' => 
+        array (
+          'name' => 'center_column_header',
+          'pos' => 1,
+          'show' => true,
+          'type' => 'real',
+          'label' => '',
+          'param' => 
+          array (
+            'css_class' => 
+            array (
+              'name' => 'css_class',
+              'type' => NULL,
+              'value' => 'header',
+              'default' => NULL,
+              'pos' => NULL,
+            ),
+          ),
+          'inner_block' => NULL,
+          'block' => 
+          array (
+            'search' => 
+            array (
+              'name' => 'search',
+              'pos' => 1,
+              'show' => true,
+              'type' => 'real',
+              'label' => '',
+              'param' => 
+              array (
+              ),
+              'inner_block' => NULL,
+              'block' => 
+              array (
+              ),
+            ),
+            'user_bar' => 
+            array (
+              'name' => 'user_bar',
+              'pos' => 1,
+              'show' => true,
+              'type' => 'real',
+              'label' => '',
+              'param' => 
+              array (
+                'show_account_link' => 
+                array (
+                  'name' => 'show_account_link',
+                  'type' => NULL,
+                  'value' => 'false',
+                  'default' => NULL,
+                  'pos' => NULL,
+                ),
+                'show_settings_link' => 
+                array (
+                  'name' => 'show_settings_link',
+                  'type' => NULL,
+                  'value' => 'false',
+                  'default' => NULL,
+                  'pos' => NULL,
+                ),
+              ),
+              'inner_block' => NULL,
+              'block' => 
+              array (
+              ),
+            ),
+          ),
+        ),
+        'wrapper' => 
+        array (
+          'name' => 'wrapper',
+          'pos' => 2,
+          'show' => true,
+          'type' => 'real',
+          'label' => '',
+          'param' => 
+          array (
+            'css_class' => 
+            array (
+              'name' => 'css_class',
+              'type' => NULL,
+              'value' => 'wrapper',
+              'default' => NULL,
+              'pos' => NULL,
+            ),
+          ),
+          'inner_block' => NULL,
+          'block' => 
+          array (
+            'center_column' => 
+            array (
+              'name' => 'center_column',
+              'pos' => 2,
+              'show' => true,
+              'type' => 'real',
+              'label' => '',
+              'param' => 
+              array (
+              ),
+              'inner_block' => NULL,
+              'block' => 
+              array (
+                'wrapper' => 
+                array (
+                  'name' => 'wrapper',
+                  'pos' => NULL,
+                  'show' => true,
+                  'type' => 'real',
+                  'label' => '',
+                  'param' => 
+                  array (
+                  ),
+                  'inner_block' => NULL,
+                  'block' => 
+                  array (
+                    'button_list' => 
+                    array (
+                      'name' => 'button_list',
+                      'pos' => -1,
+                      'show' => true,
+                      'type' => 'real',
+                      'label' => '',
+                      'param' => 
+                      array (
+                        'css_class' => 
+                        array (
+                          'name' => 'css_class',
+                          'type' => NULL,
+                          'value' => 'button_list',
+                          'default' => NULL,
+                          'pos' => NULL,
+                        ),
+                      ),
+                      'inner_block' => NULL,
+                      'block' => 
+                      array (
+                      ),
+                    ),
+                    'content' => 
+                    array (
+                      'name' => 'content',
+                      'pos' => NULL,
+                      'show' => true,
+                      'type' => 'real',
+                      'label' => '',
+                      'param' => 
+                      array (
+                      ),
+                      'inner_block' => NULL,
+                      'block' => 
+                      array (
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+    'center_columnaaaz' => 
+    array (
+      'name' => 'center_columnaaaz',
+      'pos' => 1,
+      'show' => true,
+      'type' => 'real',
+      'label' => 'Layout center column',
+      'param' => 
+      array (
+      ),
+      'inner_block' => NULL,
+      'block' => 
+      array (
+        'center_column_header' => 
+        array (
+          'name' => 'center_column_header',
+          'pos' => 1,
+          'show' => true,
+          'type' => 'real',
+          'label' => '',
+          'param' => 
+          array (
+            'css_class' => 
+            array (
+              'name' => 'css_class',
+              'type' => NULL,
+              'value' => 'header',
+              'default' => NULL,
+              'pos' => NULL,
+            ),
+          ),
+          'inner_block' => NULL,
+          'block' => 
+          array (
+            'search' => 
+            array (
+              'name' => 'search',
+              'pos' => 1,
+              'show' => true,
+              'type' => 'real',
+              'label' => '',
+              'param' => 
+              array (
+              ),
+              'inner_block' => NULL,
+              'block' => 
+              array (
+              ),
+            ),
+            'user_bar' => 
+            array (
+              'name' => 'user_bar',
+              'pos' => 1,
+              'show' => true,
+              'type' => 'real',
+              'label' => '',
+              'param' => 
+              array (
+                'show_account_link' => 
+                array (
+                  'name' => 'show_account_link',
+                  'type' => NULL,
+                  'value' => 'false',
+                  'default' => NULL,
+                  'pos' => NULL,
+                ),
+                'show_settings_link' => 
+                array (
+                  'name' => 'show_settings_link',
+                  'type' => NULL,
+                  'value' => 'false',
+                  'default' => NULL,
+                  'pos' => NULL,
+                ),
+              ),
+              'inner_block' => NULL,
+              'block' => 
+              array (
+              ),
+            ),
+          ),
+        ),
+        'center_columnaaaz' => 
+        array (
+          'name' => 'center_columnaaaz',
+          'pos' => 1,
+          'show' => true,
+          'type' => 'real',
+          'label' => 'Layout center column',
+          'param' => 
+          array (
+          ),
+          'inner_block' => NULL,
+          'block' => 
+          array (
+            'center_column_header' => 
+            array (
+              'name' => 'center_column_header',
+              'pos' => 1,
+              'show' => true,
+              'type' => 'real',
+              'label' => '',
+              'param' => 
+              array (
+                'css_class' => 
+                array (
+                  'name' => 'css_class',
+                  'type' => NULL,
+                  'value' => 'header',
+                  'default' => NULL,
+                  'pos' => NULL,
+                ),
+              ),
+              'inner_block' => NULL,
+              'block' => 
+              array (
+                'search' => 
+                array (
+                  'name' => 'search',
+                  'pos' => 1,
+                  'show' => true,
+                  'type' => 'real',
+                  'label' => '',
+                  'param' => 
+                  array (
+                  ),
+                  'inner_block' => NULL,
+                  'block' => 
+                  array (
+                  ),
+                ),
+                'user_bar' => 
+                array (
+                  'name' => 'user_bar',
+                  'pos' => 1,
+                  'show' => true,
+                  'type' => 'real',
+                  'label' => '',
+                  'param' => 
+                  array (
+                    'show_account_link' => 
+                    array (
+                      'name' => 'show_account_link',
+                      'type' => NULL,
+                      'value' => 'false',
+                      'default' => NULL,
+                      'pos' => NULL,
+                    ),
+                    'show_settings_link' => 
+                    array (
+                      'name' => 'show_settings_link',
+                      'type' => NULL,
+                      'value' => 'false',
+                      'default' => NULL,
+                      'pos' => NULL,
+                    ),
+                  ),
+                  'inner_block' => NULL,
+                  'block' => 
+                  array (
+                  ),
+                ),
+              ),
+            ),
+            'wrapper' => 
+            array (
+              'name' => 'wrapper',
+              'pos' => 2,
+              'show' => true,
+              'type' => 'real',
+              'label' => '',
+              'param' => 
+              array (
+                'css_class' => 
+                array (
+                  'name' => 'css_class',
+                  'type' => NULL,
+                  'value' => 'wrapper',
+                  'default' => NULL,
+                  'pos' => NULL,
+                ),
+              ),
+              'inner_block' => NULL,
+              'block' => 
+              array (
+                'center_column' => 
+                array (
+                  'name' => 'center_column',
+                  'pos' => 2,
+                  'show' => true,
+                  'type' => 'real',
+                  'label' => '',
+                  'param' => 
+                  array (
+                  ),
+                  'inner_block' => NULL,
+                  'block' => 
+                  array (
+                    'wrapper' => 
+                    array (
+                      'name' => 'wrapper',
+                      'pos' => NULL,
+                      'show' => true,
+                      'type' => 'real',
+                      'label' => '',
+                      'param' => 
+                      array (
+                      ),
+                      'inner_block' => NULL,
+                      'block' => 
+                      array (
+                        'button_list' => 
+                        array (
+                          'name' => 'button_list',
+                          'pos' => -1,
+                          'show' => true,
+                          'type' => 'real',
+                          'label' => '',
+                          'param' => 
+                          array (
+                            'css_class' => 
+                            array (
+                              'name' => 'css_class',
+                              'type' => NULL,
+                              'value' => 'button_list',
+                              'default' => NULL,
+                              'pos' => NULL,
+                            ),
+                          ),
+                          'inner_block' => NULL,
+                          'block' => 
+                          array (
+                          ),
+                        ),
+                        'content' => 
+                        array (
+                          'name' => 'content',
+                          'pos' => NULL,
+                          'show' => true,
+                          'type' => 'real',
+                          'label' => '',
+                          'param' => 
+                          array (
+                          ),
+                          'inner_block' => NULL,
+                          'block' => 
+                          array (
+                          ),
+                        ),
+                        'sidebar' => 
+                        array (
+                          'name' => 'sidebar',
+                          'pos' => NULL,
+                          'show' => true,
+                          'type' => 'real',
+                          'label' => 'Side bar',
+                          'param' => 
+                          array (
+                            'show' => 
+                            array (
+                              'name' => 'show',
+                              'type' => 'boolean',
+                              'value' => true,
+                              'default' => NULL,
+                              'pos' => NULL,
+                            ),
+                            'string1' => 
+                            array (
+                              'name' => 'string1',
+                              'type' => 'string',
+                              'value' => 'string value',
+                              'default' => NULL,
+                              'pos' => NULL,
+                            ),
+                            'string2' => 
+                            array (
+                              'name' => 'string2',
+                              'type' => 'string',
+                              'value' => NULL,
+                              'default' => NULL,
+                              'pos' => NULL,
+                            ),
+                            'string3' => 
+                            array (
+                              'name' => 'string3',
+                              'type' => 'string',
+                              'value' => 'some value',
+                              'default' => NULL,
+                              'pos' => NULL,
+                            ),
+                            'true1' => 
+                            array (
+                              'name' => 'true1',
+                              'type' => 'boolean',
+                              'value' => true,
+                              'default' => NULL,
+                              'pos' => NULL,
+                            ),
+                            'true2' => 
+                            array (
+                              'name' => 'true2',
+                              'type' => 'boolean',
+                              'value' => true,
+                              'default' => NULL,
+                              'pos' => NULL,
+                            ),
+                            'true3' => 
+                            array (
+                              'name' => 'true3',
+                              'type' => 'boolean',
+                              'value' => true,
+                              'default' => NULL,
+                              'pos' => NULL,
+                            ),
+                            'false1' => 
+                            array (
+                              'name' => 'false1',
+                              'type' => 'boolean',
+                              'value' => true,
+                              'default' => NULL,
+                              'pos' => NULL,
+                            ),
+                            'false2' => 
+                            array (
+                              'name' => 'false2',
+                              'type' => 'boolean',
+                              'value' => true,
+                              'default' => NULL,
+                              'pos' => NULL,
+                            ),
+                            'false3' => 
+                            array (
+                              'name' => 'false3',
+                              'type' => 'boolean',
+                              'value' => true,
+                              'default' => NULL,
+                              'pos' => NULL,
+                            ),
+                            'css_class' => 
+                            array (
+                              'name' => 'css_class',
+                              'type' => 'boolean',
+                              'value' => false,
+                              'default' => NULL,
+                              'pos' => NULL,
+                              'test' => 
+                              array (
+                                'name' => 'test',
+                                'type' => 'string',
+                                'value' => 'Some value',
+                                'default' => NULL,
+                                'pos' => NULL,
+                              ),
+                            ),
+                          ),
+                          'inner_block' => 
+                          array (
+                            'param' => 
+                            array (
+                              'show' => 
+                              array (
+                                'name' => 'show',
+                                'type' => 'boolean',
+                                'value' => true,
+                                'default' => NULL,
+                                'pos' => '1000',
+                              ),
+                              'css_class' => 
+                              array (
+                                'name' => 'css_class',
+                                'type' => 'boolean',
+                                'value' => false,
+                                'default' => NULL,
+                                'pos' => NULL,
+                              ),
+                            ),
+                          ),
+                          'block' => 
+                          array (
+                            'center_column' => 
+                            array (
+                              'name' => 'center_column',
+                              'pos' => 1,
+                              'show' => true,
+                              'type' => 'real',
+                              'label' => 'Layout center column',
+                              'param' => 
+                              array (
+                              ),
+                              'inner_block' => NULL,
+                              'block' => 
+                              array (
+                                'center_column_header' => 
+                                array (
+                                  'name' => 'center_column_header',
+                                  'pos' => 1,
+                                  'show' => true,
+                                  'type' => 'real',
+                                  'label' => '',
+                                  'param' => 
+                                  array (
+                                    'css_class' => 
+                                    array (
+                                      'name' => 'css_class',
+                                      'type' => NULL,
+                                      'value' => 'header',
+                                      'default' => NULL,
+                                      'pos' => NULL,
+                                    ),
+                                  ),
+                                  'inner_block' => NULL,
+                                  'block' => 
+                                  array (
+                                    'search' => 
+                                    array (
+                                      'name' => 'search',
+                                      'pos' => 1,
+                                      'show' => true,
+                                      'type' => 'real',
+                                      'label' => '',
+                                      'param' => 
+                                      array (
+                                      ),
+                                      'inner_block' => NULL,
+                                      'block' => 
+                                      array (
+                                      ),
+                                    ),
+                                    'user_bar' => 
+                                    array (
+                                      'name' => 'user_bar',
+                                      'pos' => 1,
+                                      'show' => true,
+                                      'type' => 'real',
+                                      'label' => '',
+                                      'param' => 
+                                      array (
+                                        'show_account_link' => 
+                                        array (
+                                          'name' => 'show_account_link',
+                                          'type' => NULL,
+                                          'value' => 'false',
+                                          'default' => NULL,
+                                          'pos' => NULL,
+                                        ),
+                                        'show_settings_link' => 
+                                        array (
+                                          'name' => 'show_settings_link',
+                                          'type' => NULL,
+                                          'value' => 'false',
+                                          'default' => NULL,
+                                          'pos' => NULL,
+                                        ),
+                                      ),
+                                      'inner_block' => NULL,
+                                      'block' => 
+                                      array (
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                'wrapper' => 
+                                array (
+                                  'name' => 'wrapper',
+                                  'pos' => 2,
+                                  'show' => true,
+                                  'type' => 'real',
+                                  'label' => '',
+                                  'param' => 
+                                  array (
+                                    'css_class' => 
+                                    array (
+                                      'name' => 'css_class',
+                                      'type' => NULL,
+                                      'value' => 'wrapper',
+                                      'default' => NULL,
+                                      'pos' => NULL,
+                                    ),
+                                  ),
+                                  'inner_block' => NULL,
+                                  'block' => 
+                                  array (
+                                    'wrapper' => 
+                                    array (
+                                      'name' => 'wrapper',
+                                      'pos' => NULL,
+                                      'show' => true,
+                                      'type' => 'real',
+                                      'label' => '',
+                                      'param' => 
+                                      array (
+                                      ),
+                                      'inner_block' => NULL,
+                                      'block' => 
+                                      array (
+                                        'button_list' => 
+                                        array (
+                                          'name' => 'button_list',
+                                          'pos' => -1,
+                                          'show' => true,
+                                          'type' => 'real',
+                                          'label' => '',
+                                          'param' => 
+                                          array (
+                                            'css_class' => 
+                                            array (
+                                              'name' => 'css_class',
+                                              'type' => NULL,
+                                              'value' => 'button_list',
+                                              'default' => NULL,
+                                              'pos' => NULL,
+                                            ),
+                                          ),
+                                          'inner_block' => NULL,
+                                          'block' => 
+                                          array (
+                                          ),
+                                        ),
+                                        'content' => 
+                                        array (
+                                          'name' => 'content',
+                                          'pos' => NULL,
+                                          'show' => true,
+                                          'type' => 'real',
+                                          'label' => '',
+                                          'param' => 
+                                          array (
+                                          ),
+                                          'inner_block' => NULL,
+                                          'block' => 
+                                          array (
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            'center_columnaaaz' => 
+                            array (
+                              'name' => 'center_columnaaaz',
+                              'pos' => 1,
+                              'show' => true,
+                              'type' => 'real',
+                              'label' => 'Layout center column',
+                              'param' => 
+                              array (
+                              ),
+                              'inner_block' => NULL,
+                              'block' => 
+                              array (
+                                'center_column_header' => 
+                                array (
+                                  'name' => 'center_column_header',
+                                  'pos' => 1,
+                                  'show' => true,
+                                  'type' => 'real',
+                                  'label' => '',
+                                  'param' => 
+                                  array (
+                                    'css_class' => 
+                                    array (
+                                      'name' => 'css_class',
+                                      'type' => NULL,
+                                      'value' => 'header',
+                                      'default' => NULL,
+                                      'pos' => NULL,
+                                    ),
+                                  ),
+                                  'inner_block' => NULL,
+                                  'block' => 
+                                  array (
+                                    'search' => 
+                                    array (
+                                      'name' => 'search',
+                                      'pos' => 1,
+                                      'show' => true,
+                                      'type' => 'real',
+                                      'label' => '',
+                                      'param' => 
+                                      array (
+                                      ),
+                                      'inner_block' => NULL,
+                                      'block' => 
+                                      array (
+                                      ),
+                                    ),
+                                    'user_bar' => 
+                                    array (
+                                      'name' => 'user_bar',
+                                      'pos' => 1,
+                                      'show' => true,
+                                      'type' => 'real',
+                                      'label' => '',
+                                      'param' => 
+                                      array (
+                                        'show_account_link' => 
+                                        array (
+                                          'name' => 'show_account_link',
+                                          'type' => NULL,
+                                          'value' => 'false',
+                                          'default' => NULL,
+                                          'pos' => NULL,
+                                        ),
+                                        'show_settings_link' => 
+                                        array (
+                                          'name' => 'show_settings_link',
+                                          'type' => NULL,
+                                          'value' => 'false',
+                                          'default' => NULL,
+                                          'pos' => NULL,
+                                        ),
+                                      ),
+                                      'inner_block' => NULL,
+                                      'block' => 
+                                      array (
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                'center_columnaaaz' => 
+                                array (
+                                  'name' => 'center_columnaaaz',
+                                  'pos' => 1,
+                                  'show' => true,
+                                  'type' => 'real',
+                                  'label' => 'Layout center column',
+                                  'param' => 
+                                  array (
+                                  ),
+                                  'inner_block' => NULL,
+                                  'block' => 
+                                  array (
+                                    'center_column_header' => 
+                                    array (
+                                      'name' => 'center_column_header',
+                                      'pos' => 1,
+                                      'show' => true,
+                                      'type' => 'real',
+                                      'label' => '',
+                                      'param' => 
+                                      array (
+                                        'css_class' => 
+                                        array (
+                                          'name' => 'css_class',
+                                          'type' => NULL,
+                                          'value' => 'header',
+                                          'default' => NULL,
+                                          'pos' => NULL,
+                                        ),
+                                      ),
+                                      'inner_block' => NULL,
+                                      'block' => 
+                                      array (
+                                        'search' => 
+                                        array (
+                                          'name' => 'search',
+                                          'pos' => 1,
+                                          'show' => true,
+                                          'type' => 'real',
+                                          'label' => '',
+                                          'param' => 
+                                          array (
+                                          ),
+                                          'inner_block' => NULL,
+                                          'block' => 
+                                          array (
+                                          ),
+                                        ),
+                                        'user_bar' => 
+                                        array (
+                                          'name' => 'user_bar',
+                                          'pos' => 1,
+                                          'show' => true,
+                                          'type' => 'real',
+                                          'label' => '',
+                                          'param' => 
+                                          array (
+                                            'show_account_link' => 
+                                            array (
+                                              'name' => 'show_account_link',
+                                              'type' => NULL,
+                                              'value' => 'false',
+                                              'default' => NULL,
+                                              'pos' => NULL,
+                                            ),
+                                            'show_settings_link' => 
+                                            array (
+                                              'name' => 'show_settings_link',
+                                              'type' => NULL,
+                                              'value' => 'false',
+                                              'default' => NULL,
+                                              'pos' => NULL,
+                                            ),
+                                          ),
+                                          'inner_block' => NULL,
+                                          'block' => 
+                                          array (
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    'wrapper' => 
+                                    array (
+                                      'name' => 'wrapper',
+                                      'pos' => 2,
+                                      'show' => true,
+                                      'type' => 'real',
+                                      'label' => '',
+                                      'param' => 
+                                      array (
+                                        'css_class' => 
+                                        array (
+                                          'name' => 'css_class',
+                                          'type' => NULL,
+                                          'value' => 'wrapper',
+                                          'default' => NULL,
+                                          'pos' => NULL,
+                                        ),
+                                      ),
+                                      'inner_block' => NULL,
+                                      'block' => 
+                                      array (
+                                        'wrapper' => 
+                                        array (
+                                          'name' => 'wrapper',
+                                          'pos' => NULL,
+                                          'show' => true,
+                                          'type' => 'real',
+                                          'label' => '',
+                                          'param' => 
+                                          array (
+                                          ),
+                                          'inner_block' => NULL,
+                                          'block' => 
+                                          array (
+                                            'button_list' => 
+                                            array (
+                                              'name' => 'button_list',
+                                              'pos' => -1,
+                                              'show' => true,
+                                              'type' => 'real',
+                                              'label' => '',
+                                              'param' => 
+                                              array (
+                                                'css_class' => 
+                                                array (
+                                                  'name' => 'css_class',
+                                                  'type' => NULL,
+                                                  'value' => 'button_list',
+                                                  'default' => NULL,
+                                                  'pos' => NULL,
+                                                ),
+                                              ),
+                                              'inner_block' => NULL,
+                                              'block' => 
+                                              array (
+                                              ),
+                                            ),
+                                            'content' => 
+                                            array (
+                                              'name' => 'content',
+                                              'pos' => NULL,
+                                              'show' => true,
+                                              'type' => 'real',
+                                              'label' => '',
+                                              'param' => 
+                                              array (
+                                              ),
+                                              'inner_block' => NULL,
+                                              'block' => 
+                                              array (
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                'wrapper' => 
+                                array (
+                                  'name' => 'wrapper',
+                                  'pos' => 2,
+                                  'show' => true,
+                                  'type' => 'real',
+                                  'label' => '',
+                                  'param' => 
+                                  array (
+                                    'css_class' => 
+                                    array (
+                                      'name' => 'css_class',
+                                      'type' => NULL,
+                                      'value' => 'wrapper',
+                                      'default' => NULL,
+                                      'pos' => NULL,
+                                    ),
+                                  ),
+                                  'inner_block' => NULL,
+                                  'block' => 
+                                  array (
+                                    'wrapper' => 
+                                    array (
+                                      'name' => 'wrapper',
+                                      'pos' => NULL,
+                                      'show' => true,
+                                      'type' => 'real',
+                                      'label' => '',
+                                      'param' => 
+                                      array (
+                                      ),
+                                      'inner_block' => NULL,
+                                      'block' => 
+                                      array (
+                                        'button_list' => 
+                                        array (
+                                          'name' => 'button_list',
+                                          'pos' => -1,
+                                          'show' => true,
+                                          'type' => 'real',
+                                          'label' => '',
+                                          'param' => 
+                                          array (
+                                            'css_class' => 
+                                            array (
+                                              'name' => 'css_class',
+                                              'type' => NULL,
+                                              'value' => 'button_list',
+                                              'default' => NULL,
+                                              'pos' => NULL,
+                                            ),
+                                          ),
+                                          'inner_block' => NULL,
+                                          'block' => 
+                                          array (
+                                          ),
+                                        ),
+                                        'content' => 
+                                        array (
+                                          'name' => 'content',
+                                          'pos' => NULL,
+                                          'show' => true,
+                                          'type' => 'real',
+                                          'label' => '',
+                                          'param' => 
+                                          array (
+                                          ),
+                                          'inner_block' => NULL,
+                                          'block' => 
+                                          array (
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        'wrapper' => 
+        array (
+          'name' => 'wrapper',
+          'pos' => 2,
+          'show' => true,
+          'type' => 'real',
+          'label' => '',
+          'param' => 
+          array (
+            'css_class' => 
+            array (
+              'name' => 'css_class',
+              'type' => NULL,
+              'value' => 'wrapper',
+              'default' => NULL,
+              'pos' => NULL,
+            ),
+          ),
+          'inner_block' => NULL,
+          'block' => 
+          array (
+            'center_column' => 
+            array (
+              'name' => 'center_column',
+              'pos' => 2,
+              'show' => true,
+              'type' => 'real',
+              'label' => '',
+              'param' => 
+              array (
+              ),
+              'inner_block' => NULL,
+              'block' => 
+              array (
+                'wrapper' => 
+                array (
+                  'name' => 'wrapper',
+                  'pos' => NULL,
+                  'show' => true,
+                  'type' => 'real',
+                  'label' => '',
+                  'param' => 
+                  array (
+                  ),
+                  'inner_block' => NULL,
+                  'block' => 
+                  array (
+                    'button_list' => 
+                    array (
+                      'name' => 'button_list',
+                      'pos' => -1,
+                      'show' => true,
+                      'type' => 'real',
+                      'label' => '',
+                      'param' => 
+                      array (
+                        'css_class' => 
+                        array (
+                          'name' => 'css_class',
+                          'type' => NULL,
+                          'value' => 'button_list',
+                          'default' => NULL,
+                          'pos' => NULL,
+                        ),
+                      ),
+                      'inner_block' => NULL,
+                      'block' => 
+                      array (
+                      ),
+                    ),
+                    'content' => 
+                    array (
+                      'name' => 'content',
+                      'pos' => NULL,
+                      'show' => true,
+                      'type' => 'real',
+                      'label' => '',
+                      'param' => 
+                      array (
+                      ),
+                      'inner_block' => NULL,
+                      'block' => 
+                      array (
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+    'center_column' => 
+    array (
+      'name' => 'center_column',
+      'pos' => 1,
+      'show' => true,
+      'type' => 'real',
+      'label' => 'Layout center column',
+      'param' => 
+      array (
+      ),
+      'inner_block' => NULL,
+      'block' => 
+      array (
+        'center_column_header' => 
+        array (
+          'name' => 'center_column_header',
+          'pos' => 1,
+          'show' => true,
+          'type' => 'real',
+          'label' => '',
+          'param' => 
+          array (
+            'css_class' => 
+            array (
+              'name' => 'css_class',
+              'type' => NULL,
+              'value' => 'header',
+              'default' => NULL,
+              'pos' => NULL,
+            ),
+          ),
+          'inner_block' => NULL,
+          'block' => 
+          array (
+            'search' => 
+            array (
+              'name' => 'search',
+              'pos' => 1,
+              'show' => true,
+              'type' => 'real',
+              'label' => '',
+              'param' => 
+              array (
+              ),
+              'inner_block' => NULL,
+              'block' => 
+              array (
+              ),
+            ),
+            'user_bar' => 
+            array (
+              'name' => 'user_bar',
+              'pos' => 1,
+              'show' => true,
+              'type' => 'real',
+              'label' => '',
+              'param' => 
+              array (
+                'show_account_link' => 
+                array (
+                  'name' => 'show_account_link',
+                  'type' => NULL,
+                  'value' => 'false',
+                  'default' => NULL,
+                  'pos' => NULL,
+                ),
+                'show_settings_link' => 
+                array (
+                  'name' => 'show_settings_link',
+                  'type' => NULL,
+                  'value' => 'false',
+                  'default' => NULL,
+                  'pos' => NULL,
+                ),
+              ),
+              'inner_block' => NULL,
+              'block' => 
+              array (
+              ),
+            ),
+          ),
+        ),
+        'wrapper' => 
+        array (
+          'name' => 'wrapper',
+          'pos' => 2,
+          'show' => true,
+          'type' => 'real',
+          'label' => '',
+          'param' => 
+          array (
+            'css_class' => 
+            array (
+              'name' => 'css_class',
+              'type' => NULL,
+              'value' => 'wrapper',
+              'default' => NULL,
+              'pos' => NULL,
+            ),
+          ),
+          'inner_block' => NULL,
+          'block' => 
+          array (
+            'center_column' => 
+            array (
+              'name' => 'center_column',
+              'pos' => 2,
+              'show' => true,
+              'type' => 'real',
+              'label' => '',
+              'param' => 
+              array (
+              ),
+              'inner_block' => NULL,
+              'block' => 
+              array (
+                'wrapper' => 
+                array (
+                  'name' => 'wrapper',
+                  'pos' => NULL,
+                  'show' => true,
+                  'type' => 'real',
+                  'label' => '',
+                  'param' => 
+                  array (
+                  ),
+                  'inner_block' => NULL,
+                  'block' => 
+                  array (
+                    'button_list' => 
+                    array (
+                      'name' => 'button_list',
+                      'pos' => -1,
+                      'show' => true,
+                      'type' => 'real',
+                      'label' => '',
+                      'param' => 
+                      array (
+                        'css_class' => 
+                        array (
+                          'name' => 'css_class',
+                          'type' => NULL,
+                          'value' => 'button_list',
+                          'default' => NULL,
+                          'pos' => NULL,
+                        ),
+                      ),
+                      'inner_block' => NULL,
+                      'block' => 
+                      array (
+                      ),
+                    ),
+                    'content' => 
+                    array (
+                      'name' => 'content',
+                      'pos' => NULL,
+                      'show' => true,
+                      'type' => 'real',
+                      'label' => '',
+                      'param' => 
+                      array (
+                      ),
+                      'inner_block' => NULL,
+                      'block' => 
+                      array (
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  ),
+);
