@@ -89,7 +89,6 @@ class View extends \Blitz
         return self::global_param($name);
     }
 
-
     public static function global_param($name)
     {
         return "%%" . self::getSessionId() . '_' . $name . '%%';

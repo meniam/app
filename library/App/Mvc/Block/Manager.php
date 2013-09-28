@@ -44,9 +44,16 @@ class Manager extends \ArrayIterator
 
     private $emptyResponse;
 
+    private $controllerNamespace = 'Application\\Controller\\Block\\';
+
     public function __construct(ServiceManager $serviceManager)
     {
         $this->serviceManager = $serviceManager;
+    }
+
+    public function setControllerNamescpace($namespace)
+    {
+        $this->controllerNamespace = (string)$namespace;
     }
 
     /**
@@ -316,7 +323,7 @@ class Manager extends \ArrayIterator
 
             $request = $this->getServiceManager()->get('request');
 
-            $controllerClass = 'Application\\Controller\\Block\\' . implode('', array_map('ucfirst', explode('-', $controllerParam))) . 'Controller';
+            $controllerClass = $this->controllerNamespace . implode('', array_map('ucfirst', explode('-', $controllerParam))) . 'Controller';
             $actionMethod    = implode('', array_map('ucfirst', explode('-', $actionParam)))     . 'Action';
             $actionMethod    = strtolower(substr($actionMethod, 0, 1)) . substr($actionMethod, 1);
 
