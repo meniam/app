@@ -111,6 +111,8 @@ class Form extends Fieldset
 
         $view->set($formArray);
         $view->block('form_context', $formArray);
+
+
         return $view->parse();
     }
 

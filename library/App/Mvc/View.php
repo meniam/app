@@ -73,7 +73,7 @@ class View extends \Blitz
         try {
             $currentBlock = $this->getCurrentBlock();
             $block        = $currentBlock->getBlock($name);
-            return (string)$this->getBlockManager()->renderBlock($block);
+            return (string)$this->getBlockManager()->renderBlock($block, false);
         } catch (\Exception $e) {
             return '';
         }

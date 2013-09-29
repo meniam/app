@@ -135,18 +135,31 @@ class Manager extends \ArrayIterator
         return $this->emptyResponse;
     }
 
+    public function getUserRole()
+    {
+        return $this->getServiceManager()->get('user')->getRole();
+    }
+
     /**
      * @param string|Block $block
      * @return \App\Http\Response
      */
-    public function renderBlock($block)
+    public function renderBlock($block, $autorenderOn = true)
     {
         if (!$block instanceof Block) {
             $block = $this->getBlock($block);
         }
 
+        if ($block->getRoleAllow() && !in_array($this->getUserRole(), $block->getRoleAllow())) {
+            return $this->getEmptyResponse();
+        }
+
+        if ($block->getRoleDeny() && in_array($this->getUserRole(), $block->getRoleDeny())) {
+            return $this->getEmptyResponse();
+        }
+
         // Если блок не нужно показывать, то возвращаем пустой Response
-        if (!$block->getShow()) {
+        if (!$block->getShow() || ($autorenderOn && !$block->getAutorender())) {
             return $this->getEmptyResponse();
         }
 
