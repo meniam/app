@@ -4,6 +4,8 @@ namespace App\Mvc;
 
 use App\Mvc\Block\Block;
 use App\Mvc\Block\Manager;
+use App\Mvc\UrlBuilder\UrlBuilder;
+use App\ServiceManager\ServiceManager;
 
 class View extends \Blitz
 {
@@ -19,6 +21,16 @@ class View extends \Blitz
 
     private static $blockManager;
 
+    /**
+     * @var ServiceManager
+     */
+    private static $serviceManager;
+
+    /**
+     * @var UrlBuilder
+     */
+    private $urlBuilder;
+
     public function __construct($template = null, $viewPath = null)
     {
         if ($viewPath) {
@@ -27,6 +39,15 @@ class View extends \Blitz
 
         ini_set('blitz.charset', 'UTF-8');
         parent::__construct($template);
+    }
+
+    public function url($route, $params = array())
+    {
+        if (!$this->urlBuilder) {
+            $this->urlBuilder = self::getServiceManager()->get('url_builder');
+        }
+
+        return $this->urlBuilder->url($route, $params);
     }
 
     /**
@@ -178,4 +199,21 @@ class View extends \Blitz
         $this->set($var);
         return $this;
     }
+
+    /**
+     * @param ServiceManager $serviceManager
+     */
+    public static function setServiceManager(ServiceManager $serviceManager)
+    {
+        self::$serviceManager = $serviceManager;
+    }
+
+    /**
+     * @return ServiceManager
+     */
+    public static function getServiceManager()
+    {
+        return self::$serviceManager;
+    }
+
 }
