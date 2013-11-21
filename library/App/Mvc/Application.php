@@ -34,6 +34,8 @@ class Application implements ApplicationInterface
      */
     private $blockManager;
 
+    private $requestUri;
+
     public function __construct($config, ServiceManager $serviceManager)
     {
         $this->config         = $config;
@@ -41,6 +43,7 @@ class Application implements ApplicationInterface
         $this->blockManager   = $serviceManager->get('block_manager');
         $this->request        = $serviceManager->get('Request');
         $this->response       = $serviceManager->get('Response');
+        $this->requestUri     = $this->getRequest()->getRequestUri();
     }
 
     /**
@@ -84,8 +87,12 @@ class Application implements ApplicationInterface
      *
      * @return Response
      */
-    public function run()
+    public function run($requestUri = null)
     {
+        if ($requestUri) {
+            $this->requestUri = $requestUri;
+        }
+
         // Роутим
         $params = $this->route();
 
@@ -113,7 +120,7 @@ class Application implements ApplicationInterface
 
         $routes = $this->config['routes'];
 
-        list($path) = explode('?', $this->getRequest()->getRequestUri(), 2);
+        list($path) = explode('?', $this->requestUri, 2);
 
         $path = trim(urldecode($path), '/ ');
 
@@ -127,16 +134,8 @@ class Application implements ApplicationInterface
                 continue;
             }
 
-            $map      = $routeParams['map'];
-            $defaults = $routeParams['defaults'];
-
-            // array_filter_key()? Why isn't this in a standard PHP function set yet? :)
-            // Этключено для поддержки ассоциативных имен в регекспах
-            /*foreach ($values as $i => $value) {
-                if (!is_int($i) || $i === 0) {
-                    unset($values[$i]);
-                }
-            }*/
+            $map      = isset($routeParams['map']) ? $routeParams['map'] : array();
+            $defaults = isset($routeParams['defaults']) ? $routeParams['defaults'] : array();
 
             $values   = $this->_getMappedValues($map, $values);
             $defaults = $this->_getMappedValues($map, $defaults, false, true);
@@ -164,7 +163,6 @@ class Application implements ApplicationInterface
     {
         $blockManger = $this->getBlockManager();
         $block = $blockManger->getBlock($request->getParam('block'));
-
         return $blockManger->renderBlock($block);
     }
 

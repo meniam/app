@@ -3,6 +3,7 @@
 namespace App\Mvc\Block;
 
 use App\Exception\InvalidArgumentException;
+use ZendTest\XmlRpc\Server\Exception;
 
 class Block extends \ArrayIterator
 {
@@ -444,7 +445,7 @@ class Block extends \ArrayIterator
      * @throws \App\Exception\InvalidArgumentException
      * @return $this
      */
-    public function addBlock($block)
+    public function addBlock($block = array())
     {
         if (is_array($block)) {
             $block = new Block($block);
@@ -534,6 +535,27 @@ class Block extends \ArrayIterator
     }
 
     /**
+     * @return array
+     */
+    public function getBlocksAsStructureArray()
+    {
+        if ($this->isDirtyIndex) {
+            $this->sortBlockArray();
+        }
+
+        /** @var $blocks Block[]|array */
+        $blocks = $this->getArrayCopy();
+
+        $result = array();
+        foreach ($blocks as $block) {
+            $result[$block->getName()] = $block->toStructureArray();
+        }
+
+        return $result;
+    }
+
+
+    /**
      * @param null $blockName
      * @return array
      */
@@ -565,6 +587,18 @@ class Block extends \ArrayIterator
     public function getName()
     {
         return $this->name;
+    }
+
+    public function getNamespace()
+    {
+        if (preg_match_all('#\/#', $this->getName(), $m) == 2) {
+            return  preg_replace('#\/([^\/]+)$#sU', '', $this->getName());
+        } elseif (preg_match_all('#\/#', $this->getName(), $m) == 1) {
+            return $this->getName();
+        }
+
+        throw new \Exception('Wrong block name');
+
     }
 
     /**
@@ -789,6 +823,13 @@ class Block extends \ArrayIterator
             }
         }
 
+        return $result;
+    }
+
+    public function toStructureArray()
+    {
+        $result = array('name' => $this->getName(),
+                        'block'       => $this->getBlocksAsStructureArray());
         return $result;
     }
 }

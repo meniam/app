@@ -20,7 +20,8 @@ class UrlBuilder implements UrlBuilderInterface
         if (!isset($this->routeList[$route])) {
             throw new InvalidArgumentException('Route ' . $route . ' not found');
         }
-        $defaults = $this->routeList[$route]['defaults'];
+
+        $defaults = isset($this->routeList[$route]['defaults']) ? $this->routeList[$route]['defaults'] : array();
 
         $url                   = $this->routeList[$route]['spec'];
         $mergedParams          = array_merge($defaults, $params);

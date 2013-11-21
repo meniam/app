@@ -50,6 +50,11 @@ class View extends \Blitz
         return $this->urlBuilder->url($route, $params);
     }
 
+    public function img($img)
+    {
+        return $img;
+    }
+
     /**
      * @param Block $currentBlock
      * @return $this
@@ -91,8 +96,11 @@ class View extends \Blitz
      */
     public function block($name)
     {
+        $oldName = $name;
         try {
             $currentBlock = $this->getCurrentBlock();
+
+            $name         = $currentBlock->getNamespace() . '/' . $name;
             $block        = $currentBlock->getBlock($name);
             return (string)$this->getBlockManager()->renderBlock($block, false);
         } catch (\Exception $e) {

@@ -7,7 +7,7 @@ use App\Mvc\Controller\AbstractAction;
 use App\ServiceManager\ServiceManager;
 use App\Http\Response;
 use App\Http\Request;
-use Blitz\View;
+//use Blitz\View;
 
 /**
  * Управление блоками в системе
@@ -54,6 +54,7 @@ class Manager extends \ArrayIterator
     public function setControllerNamescpace($namespace)
     {
         $this->controllerNamespace = (string)$namespace;
+        return $this;
     }
 
     /**
@@ -77,12 +78,20 @@ class Manager extends \ArrayIterator
 
     /**
      * @param $block
+     *
+     * @throws \Exception
      * @return Block
      */
     public function getBlock($block)
     {
-        if (isset($this[$block])) {
-            return $this[$block];
+        $blockName = $block;
+        $blockParams = explode('/', $block);
+        if (count($blockParams) != 2) {
+            throw new \Exception('Wrong block param format 2');
+        }
+
+        if (isset($this[$blockName])) {
+            return $this[$blockName];
         }
 
         $blockArray = array();
@@ -99,16 +108,38 @@ class Manager extends \ArrayIterator
 
         if (empty($blockArray)) {
             $blockArray = $this->loadBlockArray($block);
-            $block = $this->createBlock($blockArray);
-            $this[$block->getName()] = $block;
+            $blockObject = $this->createBlock($blockArray);
+            $this[$blockParams[0] . '/' . $blockParams[1] . '/' . $blockObject->getName()] = $blockObject;
 
             if ($this->allowCache && isset($file)) {
-                $code = "<?php\n\n return " . var_export($block->toArray(), true) . ";\n";
+                $code = "<?php\n\n return " . var_export($blockObject->toArray(), true) . ";\n";
+
+                if (!is_dir(dirname($file))) {
+                    mkdir(dirname($file), 0755, true);
+                }
+
                 file_put_contents($file, $code);
             }
+            return $this[$blockParams[0] . '/' . $blockParams[1] . '/' . $blockObject->getName()];
         }
 
         return $this->createBlock($blockArray);
+    }
+
+
+    protected function fixNames(&$blockArray, $prefix)
+    {
+        if (isset($blockArray['name']) && strpos($blockArray['name'], '/') === false) {
+            $blockArray['name'] = $prefix . '/' . $blockArray['name'];
+        }
+
+        if (isset($blockArray['block'])) {
+            foreach ($blockArray['block'] as $i => $innerBlock) {
+                $blockArray['block'][$i] = $this->fixNames($innerBlock, $prefix);
+            }
+        }
+
+        return $blockArray;
     }
 
     /**
@@ -142,6 +173,8 @@ class Manager extends \ArrayIterator
 
     /**
      * @param string|Block $block
+     * @param bool         $autorenderOn
+     *
      * @return \App\Http\Response
      */
     public function renderBlock($block, $autorenderOn = true)
@@ -149,6 +182,7 @@ class Manager extends \ArrayIterator
         if (!$block instanceof Block) {
             $block = $this->getBlock($block);
         }
+
 
         if ($block->getRoleAllow() && !in_array($this->getUserRole(), $block->getRoleAllow())) {
             return $this->getEmptyResponse();
@@ -163,7 +197,7 @@ class Manager extends \ArrayIterator
             return $this->getEmptyResponse();
         }
 
-        $responseBody = '';
+        //$responseBody = '';
         if (($controller = $block->getController()) && ($action = $block->getAction())) {
             $status = $this->dispatchControllerAction($block);
             if ($status === false) {
@@ -195,7 +229,7 @@ class Manager extends \ArrayIterator
             foreach ($childArray as $childBlock) {
                 // Если можно рендерить автоматически
                 if ($childBlock->getAutorender()) {
-                    $childResponse = $this->renderBlock($childBlock);
+                    $childResponse = $this->renderBlock($childBlock, false);
                     $childListBody .= (string) $childResponse;
                 }
             }
@@ -561,12 +595,8 @@ class Manager extends \ArrayIterator
      *
      * @param $blockArray
      * @return array|mixed
-     */
     protected function prepareBlockArray($blockArray)
     {
-        if (isset($blockArray['extends'])) {
-            $blockArray = self::loadBlockArray($blockArray['extends'], array(), $blockArray);
-        }
 
         $parentBlock = null;
         if (isset($blockArray['parent'])) {
@@ -574,6 +604,7 @@ class Manager extends \ArrayIterator
         }
         return $parentBlock ? $parentBlock : $blockArray;
     }
+     */
 
     /**
      * Загружает блок в массив, с учетом родителей
@@ -585,12 +616,18 @@ class Manager extends \ArrayIterator
      */
     protected function loadBlockArray($block, array $childBlock = array(), array $extendedBlockArray = array())
     {
+        $blockParams = explode('/', $block);
+        if (count($blockParams) != 2) {
+            throw new \Exception('Wrong block param format');
+        }
+
         if (!$xml = $this->loadBlockXmlFile($block)) {
             return array();
         }
         $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
 
         $blockArray = $this->convertXmlArray($this->normalizeArray(json_decode(json_encode((array)$xml), 1)));
+        $this->fixNames($blockArray, $blockParams[0] . '/' . $blockParams[1]);
 
         if (!empty($extendedBlockArray)) {
             $blockArray = self::arrayMergeRecursive($blockArray, $extendedBlockArray);
@@ -602,8 +639,43 @@ class Manager extends \ArrayIterator
                 $blockArray['block'][$n] = $v;
             }
         }
+        if (isset($blockArray['extends'])) {
+            $blockArray = self::loadBlockArray($blockArray['extends'], array(), $blockArray);
+        }
 
-        $blockArray = $this->prepareBlockArray($blockArray);
+        return $blockArray;
+    }
+
+    public static function  arrayMapRecursive($callback, $value)
+    {
+        if (is_array($value)) {
+            return array_map(function($value) use ($callback) { return self::arrayMapRecursive($callback, $value); }, $value);
+        }
+        return $callback($value);
+    }
+
+    /**
+     *
+     */
+    protected function fixBlock($blockArray)
+    {
+        if (isset($blockArray['block'])) {
+            foreach ($blockArray['block'] as $n => $blockItem) {
+                $realBlock = $this->getBlock($blockItem['name'])->toArray();
+                //var_dump ($realBlock);
+                //print_r($blockItem);
+                //$blockArray['block'][$n] =$blockItem;
+                $blockArray['block'][$n] = self::arrayMergeRecursive($realBlock, $blockItem);
+            }
+
+            reset($blockArray['block']);
+            foreach ($blockArray['block'] as &$innerBlock) {
+                if ($newBlocks = $this->fixBlock($innerBlock)) {
+                    $innerBlock = $newBlocks;
+                }
+
+            }
+        }
 
         return $blockArray;
     }
@@ -748,8 +820,11 @@ class Manager extends \ArrayIterator
      */
     protected function loadBlockXmlFile($block)
     {
+        $blockName = implode(DIRECTORY_SEPARATOR, array_slice(explode('/', $block), 0, 3));
+
         foreach ($this->blockPath as $blockPath) {
-            $file = $blockPath . DIRECTORY_SEPARATOR . strtolower($block) . '.xml';
+            $file = $blockPath . DIRECTORY_SEPARATOR . strtolower($blockName) . '.xml';
+
             if (is_file($file)) {
                 return file_get_contents($file);
             }

@@ -358,6 +358,7 @@ abstract class AbstractAction
 
     public function forward($action, $controller = null, array $params = array())
     {
+        $this->getServiceManager()->get('application')->run($url);
         $params['action'] = (string)$action;
         $params['controller'] = $controller ? $controller : $this->getRequest()->getParam('controller');
 
