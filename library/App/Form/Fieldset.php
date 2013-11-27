@@ -63,12 +63,24 @@ class Fieldset extends Element
      */
     public function setData($data, $isPopulate = true)
     {
-        $this->data = $data;
+        if ($this->getIsMultiple()) {
+            $this->data = reset($data);
+        } else {
+            $this->data = $data;
+        }
 
         if ($isPopulate) {
             $this->populateData();
         }
         return $this;
+    }
+
+    public function removeData()
+    {
+        foreach ($this->getIterator() as $elementOrFieldset) {
+            $elementOrFieldset->removeValue();
+        }
+        $this->data = null;
     }
 
     /**

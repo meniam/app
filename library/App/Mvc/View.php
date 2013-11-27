@@ -15,13 +15,6 @@ class View extends \Blitz
     private static $viewPathList = array();
 
     /**
-     * @var Block
-     */
-    private $currentBlock;
-
-    private static $blockManager;
-
-    /**
      * @var ServiceManager
      */
     private static $serviceManager;
@@ -55,84 +48,11 @@ class View extends \Blitz
         return $img;
     }
 
-    /**
-     * @param Block $currentBlock
-     * @return $this
-     */
-    public function setCurrentBlock($currentBlock)
-    {
-        $this->currentBlock = $currentBlock;
-        return $this;
-    }
-
-    /**
-     * @return Block
-     */
-    public function getCurrentBlock()
-    {
-        return $this->currentBlock;
-    }
-
-    /**
-     * @param Manager $blockManager
-     * @return void
-     */
-    public static function setBlockManager(Manager $blockManager)
-    {
-        self::$blockManager = $blockManager;
-    }
-
-    /**
-     * @return Manager
-     */
-    public static function getBlockManager()
-    {
-        return self::$blockManager;
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     */
-    public function block($name)
-    {
-        $oldName = $name;
-        try {
-            $currentBlock = $this->getCurrentBlock();
-
-            $name         = $currentBlock->getNamespace() . '/' . $name;
-            $block        = $currentBlock->getBlock($name);
-            return (string)$this->getBlockManager()->renderBlock($block, false);
-        } catch (\Exception $e) {
-            return '';
-        }
-    }
-
     public function _($string)
     {
         return $string;
     }
 
-    public static function globalParam($name)
-    {
-        return self::global_param($name);
-    }
-
-    public static function global_param($name)
-    {
-        return "%%" . self::getSessionId() . '_' . $name . '%%';
-    }
-
-    private static $uniqSessionId;
-
-    public static function getSessionId()
-    {
-        if (!self::$uniqSessionId) {
-            self::$uniqSessionId = uniqid();
-        }
-
-        return self::$uniqSessionId;
-    }
 
     public function setViewPath($path)
     {
@@ -155,7 +75,7 @@ class View extends \Blitz
                 $fullFilename = $viewPath . DIRECTORY_SEPARATOR . $filename;
 
                 if (is_file($fullFilename)) {
-                    $contents = file_get_contents($fullFilename);
+                    //$contents = file_get_contents($fullFilename);
                     return $this->include($fullFilename, $vars);
                 }
             }

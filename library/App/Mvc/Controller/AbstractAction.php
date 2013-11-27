@@ -7,7 +7,7 @@ use App\Http\Request;
 use App\Http\Response;
 use App\Mvc\Block\Block;
 
-abstract class AbstractAction
+abstract class  AbstractAction
 {
     const ERROR_404 = 404;
     const ERROR_403 = 403;
@@ -22,11 +22,6 @@ abstract class AbstractAction
      * @var Response
      */
     private $response;
-
-    /**
-     * @var Block
-     */
-    private $currentBlock;
 
     /**
      * @var \App\Mvc\UrlBuilder\UrlBuilder
@@ -50,11 +45,6 @@ abstract class AbstractAction
     private static $currentUser;
 
     /**
-     * @var \App\Mvc\Block\Manager
-     */
-    private $blockManager;
-
-    /**
      * Остановить выполнение
      *
      * @var bool
@@ -67,6 +57,29 @@ abstract class AbstractAction
      * @var array|null
      */
     private $forward = null;
+
+    /**
+     * Текущий вид представления
+     *
+     * @var string
+     */
+    private $layout = 'default';
+
+    /**
+     * @param string $layout
+     */
+    public function setLayout($layout)
+    {
+        $this->layout = $layout;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLayout()
+    {
+        return $this->layout ? $this->layout : $this->getRequest()->getParam('layout');
+    }
 
     /**
      * @param array|null $forward
@@ -95,11 +108,11 @@ abstract class AbstractAction
         return $this;
     }
 
-    public function __construct(Request $request, Response $response, Block $block)
+    public function __construct(Request $request, Response $response)
     {
         $this->request      = $request;
         $this->response     = $response;
-        $this->currentBlock = $block;
+        //$this->currentBlock = $block;
     }
 
     /**
@@ -176,22 +189,23 @@ abstract class AbstractAction
             return;
         }
 
-        if (!$viewScript = $this->getViewScript()) {
-            $block   = $this->getCurrentBlock();
-            $controller = $block->getController();
-            $action     = $block->getAction();
-            $viewScript = $controller . '/' . $action . '.phtml';
-        }
+        $viewScript = $this->getViewScript();
 
         // End of View Renderer
         $view = $this->getView();
-        if ($actionResponse) {
+        /*if ($actionResponse) {
             $view->set($actionResponse);
-        }
+        }*/
 
-        $content = $view->includeTpl($viewScript, $actionResponse);
+        $actionResponse['content'] = $view->includeTpl($viewScript, $actionResponse);
 
-        $this->getResponse()->setBody($content);
+
+        $this->getResponse()
+             ->setBody(
+                $this->getLayoutView()
+                     ->includeTpl($this->getLayout() . '.phtml', $actionResponse));
+
+        //$this->getResponse()->setBody($content);
     }
 
     /**
@@ -244,21 +258,20 @@ abstract class AbstractAction
     }
 
     /**
-     * @return \Blitz\View
+     * @return \App\Mvc\View
      */
     public function getView()
     {
         /**
-         * @var \Blitz\View
+         * @var \App\Mvc\View
          */
         $view = self::getServiceManager()->get('view');
-        $view->setCurrentBlock($this->getCurrentBlock());
 
         return $view;
     }
 
     /**
-     * @return \Blitz\View
+     * @return \App\Mvc\View
      */
     public function getLayoutView()
     {
@@ -403,6 +416,9 @@ abstract class AbstractAction
      */
     public function getViewScript()
     {
+        if (!$this->viewScript) {
+            $this->viewScript = $this->getRequest()->getParam('controller') . '/' . $this->getRequest()->getParam('action') . '.phtml';
+        }
         return $this->viewScript;
     }
 

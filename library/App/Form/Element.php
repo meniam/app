@@ -453,8 +453,25 @@ class Element
             // Рендерим значения
             if ($view->hasContext('input_context/value_context')) {
                 $values = $this->getValue();
-                foreach ($values as $k => $v) {
+                $dataValues = $this->getValue();
+                foreach ((array)$dataValues as $k => $v) {
                     $view->block('input_context/value_context', array('key' => $k, 'value' => $v));
+                }
+            }
+
+            // Рендерим варианты значения
+            if ($view->hasContext('input_context/value_option_context')) {
+                $valueOptions = $this->getValueOptions();
+                foreach ($valueOptions as $k => $v) {
+                    $isSelected = false;
+                    $dataValues = $this->getValue();
+                    foreach ((array)$dataValues as $dataValue) {
+                        if ($k == $dataValue) {
+                            $isSelected = true;
+                            break;
+                        }
+                    }
+                    $view->block('input_context/value_option_context', array('key' => $k, 'value' => $v, 'selected' => $isSelected));
                 }
             }
 
@@ -714,6 +731,25 @@ class Element
         return $this->getAttribute('name');
     }
 
+
+    protected $multiplePosition;
+
+    /**
+     * @param mixed $multiplePosition
+     */
+    public function setMultiplePosition($multiplePosition)
+    {
+        $this->multiplePosition = $multiplePosition;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMultiplePosition()
+    {
+        return $this->multiplePosition;
+    }
+
     /**
      * @return string
      */
@@ -728,10 +764,10 @@ class Element
             $name = $formName . '[' . $name . ']';
         }
 
-        if ($this->getMultiple() == true) {
-            $name .= '[]';
+        if ($this->getIsMultiple() == true) {
+            $name .= '[' . $this->getMultiplePosition() . ']';
         } elseif (!$this->getForm() && ($this instanceof Fieldset)) {
-            $name = '';
+            $name = $this->getName();
         }
 
         return $name;
@@ -784,7 +820,12 @@ class Element
             }
         }
 
-        return $values;
+        return isset($value[1]) ? $values : reset($values);
+    }
+
+    public function removeValue()
+    {
+        $this->value = array();
     }
 
     /**
@@ -1262,6 +1303,7 @@ class Element
     public function isValid()
     {
         $values = $this->getValue();
+        $values = is_array($values) ? $values : array($values);
 
         // Вырезаем все пустые значения, пробелы являются пустыми
         $filteredEmptyValues = array_filter($values, function($a){

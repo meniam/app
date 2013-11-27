@@ -85,13 +85,17 @@ class Form extends Fieldset
         }
 
         $view = $this->getView($decorator);
+        $this->setMultiplePosition(0);
 
         $formArray = $this->toArray();
-
+        $i = 0;
         foreach ($this->getIterator() as $element) {
+            $element->setMultiplePosition($i++);
+
             /** @var $element Element */
             if ($render = $element->render()) {
                 $elementName = $element->getName();
+                $formArray[$elementName . '_label']   = $element->getLabel();
                 $formArray[$elementName . '_render']   = $render;
                 $formArray['element_render']['render'] = $render;
                 $formArray[$elementName . '_element']  = $element->toArray();
@@ -111,8 +115,6 @@ class Form extends Fieldset
 
         $view->set($formArray);
         $view->block('form_context', $formArray);
-
-
         return $view->parse();
     }
 
@@ -126,7 +128,7 @@ class Form extends Fieldset
         return array_merge(array(
                                 'name' => $this->getName(),
                                 'action' => $this->getAction(),
-                                 'elements' => $elementArray,
-                                 'method' => $this->getMethod()), $this->getAttributes());
+                                'elements' => $elementArray,
+                                'method' => $this->getMethod()), $this->getAttributes());
     }
 }

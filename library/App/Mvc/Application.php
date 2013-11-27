@@ -22,6 +22,9 @@ class Application implements ApplicationInterface
      */
     private $response;
 
+    private $controllerNamespace;
+
+
     private $config;
 
     /**
@@ -40,10 +43,26 @@ class Application implements ApplicationInterface
     {
         $this->config         = $config;
         $this->serviceManager = $serviceManager;
-        $this->blockManager   = $serviceManager->get('block_manager');
+        //$this->blockManager   = $serviceManager->get('block_manager');
         $this->request        = $serviceManager->get('Request');
         $this->response       = $serviceManager->get('Response');
         $this->requestUri     = $this->getRequest()->getRequestUri();
+    }
+
+    /**
+     * @param mixed $controllerNamespace
+     */
+    public function setControllerNamespace($controllerNamespace)
+    {
+        $this->controllerNamespace = $controllerNamespace;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getControllerNamespace()
+    {
+        return $this->controllerNamespace;
     }
 
     /**
@@ -85,6 +104,7 @@ class Application implements ApplicationInterface
     /**
      * Run the application
      *
+     * @param null $requestUri
      * @return Response
      */
     public function run($requestUri = null)
@@ -99,7 +119,7 @@ class Application implements ApplicationInterface
         if ($params === false) {
             $params = array(
                 'controller' => 'error',
-                'action'     => '404'
+                'action'     => 'error404'
             );
         }
 
@@ -161,9 +181,59 @@ class Application implements ApplicationInterface
      */
     public function dispatch(Request $request)
     {
-        $blockManger = $this->getBlockManager();
-        $block = $blockManger->getBlock($request->getParam('block'));
-        return $blockManger->renderBlock($block);
+        $controller = $request->getParam('controller');
+        $action     = $request->getParam('action');
+        return $this->dispatchControllerAction($controller, $action);
+    }
+
+    /**
+     * Диспетчеризация для Controller Action блока
+     *
+     * @param Block $block
+     * @return Response|bool
+     */
+    public function dispatchControllerAction($controllerParam, $actionParam)
+    {
+        try {
+            $request = $this->getServiceManager()->get('request');
+
+            $controllerClass = $this->controllerNamespace . implode('', array_map('ucfirst', explode('-', $controllerParam))) . 'Controller';
+            $actionMethod    = implode('', array_map('ucfirst', explode('-', $actionParam)))     . 'Action';
+            $actionMethod    = strtolower(substr($actionMethod, 0, 1)) . substr($actionMethod, 1);
+
+            $response = $this->getResponse();
+            /** @var $controller AbstractAction */
+            $controller = new $controllerClass($request, $response);
+
+            $classMethods = get_class_methods($controller);
+
+            if (in_array('preDispatch', $classMethods)) {
+                $controller->preDispatch();
+            }
+
+            $forward = $controller->getForward();
+            if (!$controller->getBreakRun() && empty($forward)) {
+                $actionResponse = $controller->$actionMethod();
+
+                if (in_array('postDispatch', $classMethods)) {
+                    $controller->postDispatch($actionResponse);
+                }
+            }
+            /*
+            if (!empty($forward)) {
+                $request->setParams($forward);
+                $controller->removeForward();
+                return $this->dispatch($request, $response);
+            }*/
+            return $response;
+        } catch (Exception $e) {
+            $response = $this->getResponse();
+            $response->setException($e);
+        }
+
+
+        return $response;
+        //return false;
     }
 
     /**
@@ -182,9 +252,12 @@ class Application implements ApplicationInterface
         $smConfig = isset($configuration['service_manager']) ? $configuration['service_manager'] : array();
         $serviceManager = new ServiceManager(new Config($smConfig));
 
-        if (!$serviceManager->has('block_manager')) {
+        /*if (!$serviceManager->has('block_manager')) {
             throw new InvalidArgumentException('Block manager not located in ServiceManger');
-        }
+        }*/
+
+        //print_r($configuration);
+        //die;
 
         return $serviceManager->get('application');
     }
