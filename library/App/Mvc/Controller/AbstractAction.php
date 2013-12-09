@@ -185,7 +185,7 @@ abstract class  AbstractAction
     public function viewRenderer($actionResponse = array())
     {
         // Если обработка остановлена в контроллере
-        if ($this->stopProcessing) {
+        if ($this->stopProcessing || $this->getBreakRun()) {
             return;
         }
 
@@ -196,6 +196,8 @@ abstract class  AbstractAction
         /*if ($actionResponse) {
             $view->set($actionResponse);
         }*/
+
+
 
         $actionResponse['content'] = $view->includeTpl($viewScript, $actionResponse);
 

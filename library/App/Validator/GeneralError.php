@@ -11,7 +11,11 @@ class GeneralError extends \Zend\Validator\AbstractValidator
 	public function setMessage($messageString, $messageKey = null)
 	{
 		$this->messageTemplates = array();
-        $this->_myKey = $messageKey ?: 'general';
+        $this->_myKey = $messageKey ? $messageKey : 'general';
+
+        $this->abstractOptions['messageTemplates'][$this->_myKey] = $messageString;
+
+        parent::setMessage($messageString, $this->_myKey);
 
 		$this->messageTemplates[$this->_myKey] = $messageString;
 

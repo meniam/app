@@ -75,12 +75,17 @@ class Fieldset extends Element
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function removeData()
     {
         foreach ($this->getIterator() as $elementOrFieldset) {
             $elementOrFieldset->removeValue();
         }
+
         $this->data = null;
+        return $this;
     }
 
     /**
@@ -275,4 +280,55 @@ class Fieldset extends Element
 
         return $this->factory;
     }
+
+    public function isValid()
+    {
+        if (count($this->errors)) {
+            return false;
+        }
+
+        foreach ($this->getIterator() as $child) {
+            if (!$child->isValid()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Получить массив
+     * @return mixed
+     */
+    public function getErrors($withChild = true)
+    {
+        $errors = parent::getErrors();
+
+        if ($withChild && $this->count()) {
+            $element = $this->getIterator();
+            foreach ($element as $childResult) {
+                if ($eList = $childResult->getErrors($withChild)) {
+                    $errors[$childResult->getName()] = $eList;
+                }
+            }
+        }
+
+        return $errors;
+    }
+
+    /*
+    public function getMessages($valueNumber = null)
+    {
+        if ($this->messages) {
+            return $this->messages;
+        }
+
+        foreach ($this->getIterator() as $child) {
+            if ($messages = $child->getMessages()) {
+                $this->setMessages(reset($messages));
+            }
+        }
+
+        return $this->messages;
+    }*/
 }

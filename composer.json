@@ -1,44 +1,56 @@
 {
-    "name": "meniam/app",
-    "type": "library",
-    "description": "Application library for PHP projects",
-    "keywords": ["application","mvc"],
-    "homepage": "http://github.com/meniam/app",
-    "license": "MIT",
-    "authors": [
-        {
-        "name": "Eugene Myazin",
-        "email": "meniam@gmail.com",
-        "homepage": "http://meniam.ru",
-        "role": "Maintainer"
-        }
+    "name"        : "meniam/app",
+    "type"        : "library",
+    "description" : "Application library for PHP projects",
+    "keywords"    : ["application", "mvc"],
+    "homepage"    : "http://github.com/meniam/app",
+    "license"     : "MIT",
+    "authors"     : [
+                        {
+                            "name": "Eugene Myazin",
+                            "email": "meniam@gmail.com",
+                            "homepage": "http://meniam.ru",
+                            "role": "Maintainer"
+                        }
     ],
     "require":{
-        "php"           :">=5.4.0,<5.6",
-        "ext-mbstring"  : "*",
-        "ext-pdo_mysql" : "*",
-        "lib-libxml"    : "*",
-        "lib-iconv"     : "~1.14",
-        "lib-pcre"      : "*",
-        "zendframework/zendframework": "2.*"
+        "php"                         : ">=5.4.0,<5.6",
+        "ext-mbstring"                : "*",
+        "ext-pdo_mysql"               : "*",
+        "lib-libxml"                  : "*",
+        "lib-iconv"                   : "~1.14",
+        "lib-pcre"                    : "*",
+        "phpunit/dbunit"              : ">=1.2",
+        "doctrine/annotations"        : "1.0.*",
+        "zendframework/zendframework" : "2.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit"             : "3.7.*",
+        "phpunit/php-invoker"         : "*",
+        "ocramius/generated-hydrator" : "*",
+        "ocramius/proxy-manager"      : "*"
     },
 
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.2-dev",
-            "dev-develop": "2.3-dev"
+    "extra" : {
+        "branch-alias" : {
+            "dev-master"  : "2.2-dev",
+            "dev-develop" : "2.3-dev"
         }
     },
 
-    "repositories":[
+    "repositories" : [
         {
-            "type": "composer",
-            "url": "https://packages.zendframework.com/"
+            "type" : "composer",
+            "url" : "https://packages.zendframework.com/"
         }
     ],
-    "autoload": {
-        "psr-0": {
-            "App": "/library/"
+    "autoload" : {
+        "classmap": [
+            "library/",
+            "tests/"
+        ],
+        "psr-0" : {
+            "App" : "/library/"
         }
     }
 }

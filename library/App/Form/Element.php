@@ -7,8 +7,11 @@ use App\Filter\Filter;
 use App\Form\Exception\InvalidArgumentException;
 use App\Validator\Validator;
 use Model\Mysql\AbstractModel;
+use Model\Result\Result;
+use Model\Validator\ValidatorSet;
 use Traversable;
 use Zend\Filter\AbstractFilter;
+use Zend\InputFilter\InputFilter;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Validator\AbstractValidator;
 
@@ -18,6 +21,11 @@ class Element
      * @var string
      */
     protected $name;
+
+    /**
+     * @var array
+     */
+    protected $errors = array();
 
     /**
      * @var array
@@ -33,11 +41,6 @@ class Element
      * @var array
      */
     protected $labelAttributes;
-
-    /**
-     * @var array Validation error messages
-     */
-    protected $messages = array();
 
     /**
      * @var array custom options
@@ -84,6 +87,66 @@ class Element
      * @var array
      */
     protected $valueOptions = array();
+
+    /**
+     * @param        $message
+     * @param string $code
+     * @param string $field
+     *
+     * @return $this
+     */
+    public function addError($message, $code = 'general', $field = 'global')
+    {
+        $this->errors[(string) $field][(string) $code] = (string)$message;
+        return $this;
+    }
+
+    /**
+     * @param array $errorList
+     *
+     * @return $this
+     */
+    public function addErrorList(array $errorList)
+    {
+        foreach ($errorList as $field => $messageList) {
+            foreach ($messageList as $code => $message) {
+                $this->addError($message, $code, $field);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Получить массив
+     * @return mixed
+     */
+    public function getErrors($withChild = true)
+    {
+        return $this->getErrorList();
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrorList()
+    {
+        return $this->errors;
+    }
+
+    /**
+     * @param ValidatorSet $validatorSet
+     *
+     * @return $this
+     */
+    public function addErrorFromValidatorSet(ValidatorSet $validatorSet)
+    {
+        if ($messageList = $validatorSet->getMessageList()) {
+            return $this->addErrorList($messageList);
+        }
+
+        return $this;
+    }
 
     /**
      * @param  null|int|string  $name    Optional name for the element
@@ -452,8 +515,8 @@ class Element
 
             // Рендерим значения
             if ($view->hasContext('input_context/value_context')) {
-                $values = $this->getValue();
-                $dataValues = $this->getValue();
+                //$values = $this->getValue();
+                $dataValues = $this->getValueAsString();
                 foreach ((array)$dataValues as $k => $v) {
                     $view->block('input_context/value_context', array('key' => $k, 'value' => $v));
                 }
@@ -477,14 +540,14 @@ class Element
 
             // Рендерим сообщения об ошибке для одного элемента
             if ($view->hasContext('input_context/message_context')) {
-                $messageList = $this->getMessages();
-                foreach ($messageList as $messages) {
+                $errorList = $this->getErrorList();
+                foreach ($errorList as $field => $messages) {
                     foreach ($messages as $code => $message) {
-                        $view->block('input_context/message_context', array('code' => $code, 'message' => $message));
+                        $view->block('input_context/message_context', array('field' => $field, 'code' => $code, 'message' => $message));
                     }
                 }
             }
-        } else
+        }/** else
 
         ///////////////////////////////////////////////////////////////////////////////////
         // Рендеринг Multiple элементов
@@ -501,10 +564,11 @@ class Element
 
             $this->isValid();
             // Рендерим общие сообщения об ошибке
-            if ($messageList = $this->getMessages()) {
-                foreach ($messageList as $messages) {
+            if ($view->hasContext('multiple_input_context/message_context')) {
+                $errorList = $this->getErrorList();
+                foreach ($errorList as $field => $messages) {
                     foreach ($messages as $code => $message) {
-                        $view->block('multiple_input_context/message_context', array('code' => $code, 'message' => $message));
+                        $view->block('multiple_input_context/message_context', array('field' => $field, 'code' => $code, 'message' => $message));
                     }
                 }
             }
@@ -525,7 +589,7 @@ class Element
                     }
                 }
             }
-        }
+        }*/
         return $view->parse();
     }
 
@@ -613,7 +677,7 @@ class Element
     /**
      * @param $decorator
      * @throws Exception\InvalidArgumentException
-     * @return \Blitz
+     * @return \App\Mvc\View
      */
     protected function getView($decorator)
     {
@@ -623,7 +687,7 @@ class Element
         foreach ($viewPathArray as $viewPath) {
             if (is_file($viewPath . DIRECTORY_SEPARATOR . $filename)) {
                 ini_set('blitz.path', $viewPath . DIRECTORY_SEPARATOR);
-                return new \Blitz($filename);
+                return new \App\Mvc\View($filename, $viewPath . DIRECTORY_SEPARATOR);
             }
         }
 
@@ -664,6 +728,18 @@ class Element
         }
 
         return $this->options[$option];
+    }
+
+    /**
+     * @return $this
+     */
+    public function getTopForm()
+    {
+        if ($this->form) {
+            return $this->form->getTopForm();
+        }
+
+        return $this;
     }
 
     /**
@@ -710,12 +786,23 @@ class Element
     {
         $array = array('name'  => $this->getInputName(),
                        'label' => $this->getAttribute('label'),
-                       'value' => $this->getValue(),
+                       'value' => $this->getValueAsString(),
+                       'on_load' => $this->getAttribute('onload'),
                        'is_multiple' => $this->getMultiple()
                        );
 
         if (!$this->isValid()) {
-            $array['messages'] = $this->getMessages();
+            $errorList = $this->getErrors();
+            foreach ($errorList as $field => $messageList) {
+                if (is_array($messageList)) {
+                    foreach ($messageList as $code => $message) {
+                        $array['errors'][] = array(
+                            'code' => $code,
+                            'message' => $message
+                        );
+                    }
+                }
+            }
         }
 
         return array_merge($this->getAttributes(), $array);
@@ -801,11 +888,10 @@ class Element
     {
         $values = (array)$this->value;
         foreach ($values as &$v) {
-            if ($modelLink = $this->getModelLink()) {
-                /** @var $modelName AbstractModel */
+            /*if ($modelLink = $this->getModelLink()) {
                 $modelName = $modelLink[0];
                 $v = $modelName::getInstance()->filterValue($v, $modelLink[1]);
-            }
+            }*/
 
             if (empty($v)) {
                 continue;
@@ -820,7 +906,17 @@ class Element
             }
         }
 
-        return isset($value[1]) ? $values : reset($values);
+        return isset($values[1]) ? $values : reset($values);
+    }
+
+    public function getValueAsString()
+    {
+        $value = $this->getValue();
+        if ($value && is_array($value)) {
+            return implode(' ', $value);
+        }
+
+        return (string)$this->getValue();
     }
 
     public function removeValue()
@@ -909,7 +1005,6 @@ class Element
      * Получить список валидаторов
      *
      * @return array|AbstractValidator[]
-     */
     public function getValidators()
     {
         if ($this->dirtyValidators && $validators = $this->getOption('validators')) {
@@ -926,6 +1021,7 @@ class Element
 
         return $this->getOption('validators');
     }
+     */
 
     /**
      * @param $name
@@ -958,10 +1054,10 @@ class Element
                 throw new InvalidArgumentException('Filters must be an array');
             }
 
-            foreach ($value as $filter) {
+            /*foreach ($value as $filter) {
                 $this->addFilter($filter);
-            }
-        } elseif ($name == 'validators') {
+            }*/
+        }/* elseif ($name == 'validators') {
             $this->options['validators'] = array();
 
             if (!is_array($value)) {
@@ -971,7 +1067,7 @@ class Element
             foreach ($value as $validator) {
                 $this->addValidator($validator);
             }
-        } else {
+        } */ else {
             $this->options[(string)$name] = $value;
         }
         return $this;
@@ -1042,7 +1138,6 @@ class Element
     /**
      * @param $filters
      * @return $this
-     */
     public function setFilters($filters)
     {
         $this->options['filters'] = array();
@@ -1053,6 +1148,7 @@ class Element
 
         return $this;
     }
+     */
 
     /**
      * @param       $type
@@ -1060,7 +1156,6 @@ class Element
      * @throws Exception\InvalidArgumentException
      * @internal param $filter
      * @return $this
-     */
     public function addFilter($type, array $params = null)
     {
         if (is_array($type)) {
@@ -1091,6 +1186,7 @@ class Element
         $this->addOption('filters', $filter);
         return $this;
     }
+     */
 
     /**
      * @param $name
@@ -1111,7 +1207,6 @@ class Element
     /**
      * @param $filter
      * @return bool
-     */
     public function hasFilter($filter)
     {
         if ($filters = $this->getOption('filters')) {
@@ -1124,11 +1219,11 @@ class Element
 
         return false;
     }
+     */
 
     /**
      * @param null|object $filter
      * @return null
-     */
     public function getFilter($filter = null)
     {
         if ($filter && $filters = $this->getOption('filters')) {
@@ -1142,13 +1237,13 @@ class Element
             return $this->getFilters();
         }
     }
+     */
 
     /**
      * @param       $type
      * @param array $params
      * @throws Exception\InvalidArgumentException
      * @return $this
-     */
     public function addValidator($type, array $params = null)
     {
         if (is_array($type)) {
@@ -1167,6 +1262,8 @@ class Element
             $this->dirtyValidators = true;
         } elseif ($type instanceof AbstractValidator) {
             $validator = $type;
+        } elseif ($type instanceof InputFilter) {
+            $validator = $type;
         }
 
         if (!isset($validator)) {
@@ -1176,11 +1273,11 @@ class Element
         $this->addOption('validators', $validator);
         return $this;
     }
+     */
 
     /**
      * @param $validator
      * @return bool
-     */
     public function hasValidator($validator)
     {
         if ($validators = $this->getValidators()) {
@@ -1193,11 +1290,11 @@ class Element
 
         return false;
     }
+     */
 
     /**
      * @param null|object $validator
      * @return null
-     */
     public function getValidator($validator = null)
     {
         if ($validator && $validators = $this->getValidators()) {
@@ -1211,6 +1308,7 @@ class Element
             return $this->getValidators();
         }
     }
+     */
 
     /**
      * Retrieve the element value
@@ -1302,69 +1400,7 @@ class Element
      */
     public function isValid()
     {
-        $values = $this->getValue();
-        $values = is_array($values) ? $values : array($values);
-
-        // Вырезаем все пустые значения, пробелы являются пустыми
-        $filteredEmptyValues = array_filter($values, function($a){
-            return is_string($a) && trim($a) !== "";
-        });
-
-        if (empty($filteredEmptyValues) && $this->getAllowEmpty()) {
-            return true;
-        }
-
-        // Тут мы проверяем все значения суммарно на пустоту
-        if (empty($filteredEmptyValues) && !$this->getAllowEmpty()) {
-            $this->setMessages(array('emptyValue' => 'Field cant be an empty'));
-            return false;
-        }
-
-        $modelField = null;
-        $model = null;
-        if ($modelLink = $this->getModelLink()) {
-            /** @var $modelName AbstractModel */
-            list($modelName, $modelField) = $modelLink;
-            $model = $modelName::getInstance();
-        }
-
-        if ((!$validators = $this->getValidators()) && !$model) {
-            return true;
-        }
-
-
-        $result = true;
-        // Пробегаем по всем значениям, сначала пытаемся сделать валидацию по моделе (если есть)
-        // затем прогоняем валидаторы, валидируем все значения до первой ошибки в каждом
-        // Если хоть одно не валидно, то результатом будет false
-        foreach ($values as $k => $value) {
-            if ($model && $modelField) {
-                $validator = $model->validateValue($value, $modelField);
-                if (is_object($validator)) {
-                    $this->setMessages($validator->getMessages(), $k);
-                    $result = false;
-                    continue;
-                }
-            }
-
-            /** @var $validators array|Validator[] */
-            if (is_array($validators)) {
-                foreach ($validators as $validator) {
-
-                    /** @var $validator \Zend\Validator\AbstractValidator */
-                    $isValid = $validator->isValid($value);
-
-                    if (!$isValid) {
-                        $messages = $validator->getMessages();
-                        $this->setMessages($messages, $k);
-                        $result = false;
-                        continue(2);
-                    }
-                }
-            }
-        }
-
-        return $result;
+        return !count($this->errors);
     }
 
     /**
@@ -1374,7 +1410,6 @@ class Element
      *
      * @param null $valueNumber
      * @return array
-     */
     public function getMessages($valueNumber = null)
     {
         if (is_null($valueNumber)) {
@@ -1385,6 +1420,7 @@ class Element
             return array();
         }
     }
+     */
 
     /**
      * Set a list of messages to report when validation fails
@@ -1393,7 +1429,6 @@ class Element
      * @param int                $valueNumber
      * @throws Exception\InvalidArgumentException
      * @return Element
-     */
     public function setMessages($messages, $valueNumber = 0)
     {
         if (!is_array($messages) && !$messages instanceof Traversable) {
@@ -1408,12 +1443,74 @@ class Element
         return $this;
     }
 
+    public function addMessages(array $messages)
+    {
+        foreach ($messages as $k => $v) {
+            $this->messages[$k] = $v;
+        }
+
+        return $this;
+    }
+     */
+
+
     /**
      * @return $this
-     */
     public function clearMessages()
     {
         $this->messages = array();
         return $this;
     }
+     */
+
+    /**
+     * @param Result $result
+     * @return $this
+     */
+    public function addResult(Result $result)
+    {
+        foreach ($result->getErrorList() as $field => $errorList) {
+            $childElement = $this->getChild($field);
+
+            if ($childElement && $childElement instanceof Element) {
+                foreach ($errorList as $code => $message) {
+                    $childElement->addError($message, $code, $field);
+                }
+            } else {
+                $this->addErrorList($errorList);
+            }
+        }
+
+        foreach ($result->getChildList() as $name => $child) {
+            list($name) = explode('.', $name, 2);
+
+            $childElement = $this->getChild($name);
+
+            if ($childElement && $childElement instanceof Element) {
+                $childElement->addResult($child);
+            } elseif (!$childElement) {
+                $this->getTopForm()->addResult($child);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param      $name
+     *
+     * @return Element|Fieldset|Form|bool
+     */
+    public function getChild($name)
+    {
+        if (isset($this->iterator)) {
+            foreach ($this->getIterator() as $elementOrFieldset) {
+                if ($name == $elementOrFieldset->getName()) {
+                    return $elementOrFieldset;
+                }
+            }
+        }
+        return false;
+    }
+
 }

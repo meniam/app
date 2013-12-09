@@ -14,7 +14,7 @@ class Stemer
     protected static function _loadStopwords()
 	{
 		if (empty(self::$_stopwords)) {
-			self::$_stopwords = array_unique(array_map('trim', __DIR__ . '/stopwords.txt'));
+			self::$_stopwords = array_unique(array_map('trim', file(__DIR__ . '/stopwords.txt')));
 		}
 
 		return self::$_stopwords;
@@ -50,7 +50,7 @@ class Stemer
 		return $word;
 	}
 
-	function _stemWord($word)
+	public static function _stemWord($word)
 	{
 		$oldlocale = \setlocale(LC_ALL,0);
 		\setlocale(LC_ALL,'C');

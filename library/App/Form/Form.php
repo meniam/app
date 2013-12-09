@@ -2,6 +2,8 @@
 
 namespace App\Form;
 
+use Model\Result\Result;
+
 class Form extends Fieldset
 {
     const METHOD_POST = 'POST';
@@ -78,6 +80,7 @@ class Form extends Fieldset
     }
 
 
+
     public function render($decorator = null)
     {
         if (!$decorator && !($decorator = $this->getDecorator())) {
@@ -94,17 +97,57 @@ class Form extends Fieldset
 
             /** @var $element Element */
             if ($render = $element->render()) {
-                $elementName = $element->getName();
-                $formArray[$elementName . '_label']   = $element->getLabel();
-                $formArray[$elementName . '_render']   = $render;
-                $formArray['element_render']['render'] = $render;
-                $formArray[$elementName . '_element']  = $element->toArray();
+//                if ($element->isMultiple()) {
+                    $valueList = $element->getValue();
+  //              }
+
+                //if ($element->getName() == 'name') {
+                  //  print_r($valueList);
+                    //die;
+                //}
+                if (is_array($valueList) && !empty($valueList)) {
+                    $renderElement = clone $element;
+
+                    $elementName = $renderElement->getName();
+                    $formArray[$elementName . '_label']   = $renderElement->getLabel();
+
+                    $formArray[$elementName . '_value']   = $renderElement->getValue();
+                    $formArray[$elementName . '_element']  = $renderElement->toArray();
+                    $formArray[$elementName . '_valid']  = $renderElement->isValid();
+                    $formArray[$elementName . '_not_valid']  = !$renderElement->isValid();
+
+
+                    foreach ($valueList as $value) {
+                        $renderElement = clone $element;
+                        $renderElement->setValue($value);
+                        if (isset($formArray[$elementName . '_render'])) {
+                            $formArray[$elementName . '_render']   .= $renderElement->render();
+                        } else {
+                            $formArray[$elementName . '_render']    = $renderElement->render();
+                        }
+                        if (isset($formArray['element_render']['render'])) {
+                            $formArray['element_render']['render']   .= $renderElement->render();
+                        } else {
+                            $formArray['element_render']['render']    = $renderElement->render();
+                        }
+                    }
+                } else {
+                    $elementName = $element->getName();
+                    $formArray[$elementName . '_label']   = $element->getLabel();
+
+                    $formArray[$elementName . '_value']   = $element->getValueAsString();
+                    $formArray[$elementName . '_render']   = $render;
+                    $formArray['element_render']['render'] = $render;
+                    $formArray[$elementName . '_element']  = $element->toArray();
+                    $formArray[$elementName . '_valid']  = $element->isValid();
+                    $formArray[$elementName . '_not_valid']  = !$element->isValid();
+                }
             }
         }
 
         // Рендерим сообщения об ошибке для одного элемента
         if ($view->hasContext('form_context/message_context')) {
-            $messageList = $this->getMessages();
+            $messageList = $this->getErrorList();
             //print_r($messageList);
             foreach ($messageList as $messages) {
                 foreach ($messages as $code => $message) {

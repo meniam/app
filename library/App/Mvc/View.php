@@ -27,6 +27,7 @@ class View extends \Blitz
     public function __construct($template = null, $viewPath = null)
     {
         if ($viewPath) {
+            $this->addViewPath($viewPath);
             $this->setViewPath($viewPath);
         }
 

@@ -17,66 +17,6 @@ use Zend\Validator\NotEmpty;
 class ElementTest extends ParentTestCase
 {
     /**
-     * @group nnn1
-     */
-    public function testIsValid()
-    {
-        $element = new Element('test');
-
-        $validator = Validator::getValidatorInstance('Zend\Validator\StringLength', array('max' => 10));
-        $this->assertInstanceOf('\Zend\Validator\StringLength', $validator);
-        $element->addValidator($validator);
-        $element->setValue('This is very long string');
-        $this->assertFalse($element->isValid());
-
-        $element = new Element('test');
-        $element->setAllowEmpty(false);
-        $this->assertFalse($element->getAllowEmpty());
-        $this->assertFalse($element->isValid());
-
-
-        $factory = new Factory();
-        $element = $factory->create(array(
-            'type' => 'App\Form\Element',
-            'options' => array(
-                'view_path' => FIXTURES_PATH . '/Form/decorators/',
-                'multiple' => true,
-                'validators' => array(
-                    'Zend\Validator\Digits'
-                )
-            ),
-            'attributes' => array(
-                'id'   => 'id_name',
-                'name' => 'var_name',
-                'class' => 'input p_input',
-                'value' => '<some value "here">',
-                'label' => 'Some label name',
-                'label_class' => 'test'
-            )
-        ));
-
-        $element->setOptions(array('model_link' => array('Model\TestModel')));
-
-        // True if empty value
-        $this->assertTrue($element->setAllowEmpty(true)->isValid());
-        $this->assertTrue($element->setValue('34')->isValid());
-
-        $element = new Element('test');
-        $element->setValue('test');
-
-        $this->assertTrue($element->isValid());
-
-        $element->addValidator('Zend\Validator\StringLength', array('min' => 1, 'max' => 2));
-        $this->assertFalse($element->isValid());
-
-        $element->setModelLink('Model\TestModel', 'test');
-        $this->assertFalse($element->isValid());
-
-        $element->setModelLink('Model\TestModel');
-        $this->assertFalse($element->isValid());
-    }
-
-    /**
      * @expectedException InvalidArgumentException
      */
     public function testRenderLabel()
@@ -351,50 +291,9 @@ EOS;
         $this->assertEquals(array('test'), $element->getAttribute('value'));
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testValidators()
-    {
-        $element = new Element('test');
-        $element->addValidator('\Zend\Validator\NotEmpty');
-
-        $validator = $element->getValidator(Validator::getValidatorInstance('Zend\Validator\NotEmpty'));
-        $this->assertInstanceOf('\Zend\Validator\NotEmpty', $validator);
-
-        $this->assertTrue($element->hasValidator($validator));
-
-        $this->assertEquals(array(Validator::getValidatorInstance('Zend\Validator\NotEmpty')), $element->getValidators());
-        $this->assertEquals(array(Validator::getValidatorInstance('Zend\Validator\NotEmpty')), $element->getValidator());
-        $this->assertNull($element->getValidator('unknown'));
-
-        $validator = Validator::getValidatorInstance('Zend\Validator\StringLength', array('max' => 128));
-        $this->assertInstanceOf('\Zend\Validator\StringLength', $validator);
-        $element->addValidator($validator);
-        $this->assertTrue($element->hasValidator($validator));
-
-        $element = new Element('test');
-        $validatorInstance = Validator::getValidatorInstance('Zend\Validator\StringLength', array('max' => 128));
-        $validator = array('Zend\Validator\StringLength', array('max' => 128));
-        $element->addValidator($validator);
-        $this->assertTrue($element->hasValidator($validatorInstance));
-
-        $element = new Element('test');
-        $validatorInstance = Validator::getValidatorInstance('Zend\Validator\StringLength', array('max' => 128));
-        $validator = array('type' => 'Zend\Validator\StringLength', 'params' => array('max' => 128));
-        $element->addValidator($validator);
-        $this->assertTrue($element->hasValidator($validatorInstance));
-
-        $element = new Element('test');
-        $validator = array('type' => 'Zend\Validator\StringLength', 'params' => array('max' => 128));
-        $element->addValidator($validator);
-        $this->assertFalse($element->hasValidator('Unknown'));
-        $element->addValidator($validator);
-        $element->addValidator(new \stdClass());
-    }
 
     /**
-     * @expectedException App\Form\Exception\InvalidArgumentException
+     * @expectedException \App\Form\Exception\InvalidArgumentException
      */
     public function testViewPath()
     {
@@ -572,14 +471,6 @@ EOS;
         $element = $factory->create($elementArray);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testFilterException()
-    {
-        $element = new Element('test');
-        $element->addFilter(new \stdClass());
-    }
 
     public function testAddClass()
     {
