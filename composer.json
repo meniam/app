@@ -48,9 +48,6 @@
         "classmap": [
             "library/",
             "tests/"
-        ],
-        "psr-0" : {
-            "App" : "/library/"
-        }
+        ]
     }
 }
