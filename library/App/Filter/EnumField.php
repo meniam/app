@@ -15,6 +15,6 @@ class EnumField extends \Zend\Filter\AbstractFilter
 {
     public function filter($value)
     {
-        return trim(strtolower(preg_replace('#[^a-z0-9\_]+#usi', '', $value)), '_');
+        return trim(preg_replace('#[^a-z0-9\_]+#usi', '', $value), '_');
     }
 }

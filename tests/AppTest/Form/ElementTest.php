@@ -99,95 +99,6 @@ class ElementTest extends ParentTestCase
         $getViewMethod->invokeArgs($element, array('test_unknown'));
     }
 
-    public function testRender()
-    {
-        $factory = new Factory();
-
-        $expected = <<<EOS
-<label class="label" for="id_name">Some label name</label>
-<input
-id="id_name"
-name="var_name[]"
-class="input p_input"
-value="&lt;some value &quot;here&quot;&gt;"
-/>
-<ul>
-    <li>[notDigits]: The input must contain only digits</li>
-</ul>
-
-EOS;
-
-        $element = $factory->create(array(
-            'type' => 'App\Form\Element',
-            'options' => array(
-                'view_path' => FIXTURES_PATH . '/Form/decorators/',
-                'multiple' => true,
-                'validators' => array(
-                    'Zend\Validator\Digits'
-                )
-            ),
-            'attributes' => array(
-                'id'   => 'id_name',
-                'name' => 'var_name',
-                'class' => 'input p_input',
-                'value' => '<some value "here">',
-                'label' => 'Some label name',
-                'label_class' => 'label'
-            )
-        ));
-
-        $this->assertEquals('', $element->render());
-        $this->assertEquals('', $element->render('empty'));
-
-        $this->assertEquals($expected, $element->render('test'));
-    }
-
-    /**
-     * @group ttt
-     */
-    public function testInputValuesRender()
-    {
-        $factory = new Factory();
-
-        $expected = <<<EOS
-<label for="id_name">Some label name</label>
-<ul>
-    <li>[notDigits]: The input must contain only digits</li>
-</ul>
-<h1>Some label name</h1>
-<input
-id="id_name"
-name="var_name[]"
-class="input p_input"
-value="&lt;some value &quot;here&quot;&gt;"
-/>
-<ul>
-    <li>[notDigits]: The input must contain only digits</li>
-</ul>
-
-EOS;
-
-        $element = $factory->create(array(
-            'type' => 'App\Form\Element',
-            'options' => array(
-                'view_path' => FIXTURES_PATH . '/Form/decorators/',
-                'multiple' => true,
-                'validators' => array(
-                    'Zend\Validator\Digits'
-                )
-            ),
-            'attributes' => array(
-                'id'   => 'id_name',
-                'name' => 'var_name',
-                'class' => 'input p_input',
-                'value' => '<some value "here">',
-                'label' => 'Some label name',
-            )
-        ));
-
-        $this->assertEquals($expected, $element->render('input_values'));
-
-    }
 
     public function testSetValueOptions()
     {
@@ -240,23 +151,6 @@ EOS;
         $element->setOptions(true);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testSetOptionsFiltersException()
-    {
-        new Element('test',array(), array('filters' => 'value'));
-
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testSetOptionsValidatorsException()
-    {
-        new Element('test',array(), array('validators' => 'value'));
-
-    }
 
     /**
      * @expectedException InvalidArgumentException
@@ -276,19 +170,6 @@ EOS;
         $this->assertEquals('', $element->removeAttribute('decorator')->getDecorator());
 
         $element->setAttributes(null);
-    }
-
-    public function testSetValue()
-    {
-        $element = new Element('test');
-        $this->assertInternalType('array', $element->getValue());
-
-        $element = new Element('test', array('value' => 'test value'));
-        $this->assertInternalType('array', $element->getValue());
-
-        $element->setAttribute('value', 'test');
-        $this->assertInternalType('array', $element->getValue());
-        $this->assertEquals(array('test'), $element->getAttribute('value'));
     }
 
 
@@ -326,7 +207,7 @@ EOS;
         $element = new Element('test[]');
         $this->assertEquals('test', $element->getInputName());
 
-        $this->assertEquals('test[]', $element->setMultiple(true)->getInputName());
+        $this->assertEquals('test', $element->setMultiple(true)->getInputName());
 
         $element = new Element('test', array(), new \ArrayObject(array('opt1' => 'value')));
         $this->assertEquals('test', $element->getName());
@@ -344,7 +225,7 @@ EOS;
         $this->assertEquals(null, $element->getInputName());
         $this->assertEquals(null, $element->setMultiple(true)->getInputName());
         $element->setName('test_name');
-        $this->assertEquals('test_name[]', $element->setMultiple(true)->getInputName());
+        $this->assertEquals('test_name', $element->setMultiple(true)->getInputName());
         $this->assertEquals('test_name', $element->setMultiple(false)->getInputName());
 
         $fieldset = new Fieldset('fieldset');
@@ -353,122 +234,24 @@ EOS;
         $form = new Fieldset('form[]');
         $form->add($fieldset);
 
-        $this->assertEquals('fieldset[test_name]',   $element->setMultiple(false)->getInputName());
-        $this->assertEquals('fieldset[test_name][]', $element->setMultiple(true)->getInputName());
+        $this->assertEquals('form[fieldset][test_name]',   $element->setMultiple(false)->getInputName());
+        $this->assertEquals('form[fieldset][test_name]', $element->setMultiple(true)->getInputName());
 
         $form->setMultiple(true);
-        $this->assertEquals('form[][fieldset][test_name]',   $element->setMultiple(false)->getInputName());
-        $this->assertEquals('form[][fieldset][test_name][]', $element->setMultiple(true)->getInputName());
+        $this->assertEquals('form[fieldset][test_name]',   $element->setMultiple(false)->getInputName());
+        $this->assertEquals('form[fieldset][test_name]', $element->setMultiple(true)->getInputName());
         $form->setMultiple(false);
 
         $fieldset->setMultiple(true);
-        $this->assertEquals('fieldset[][test_name]',   $element->setMultiple(false)->getInputName());
-        $this->assertEquals('fieldset[][test_name][]', $element->setMultiple(true)->getInputName());
+        $this->assertEquals('form[fieldset][test_name]',   $element->setMultiple(false)->getInputName());
+        $this->assertEquals('form[fieldset][test_name]', $element->setMultiple(true)->getInputName());
 
         $form->setMultiple(true);
-        $this->assertEquals('form[][fieldset][][test_name]',   $element->setMultiple(false)->getInputName());
-        $this->assertEquals('form[][fieldset][][test_name][]', $element->setMultiple(true)->getInputName());
+        $this->assertEquals('form[fieldset][test_name]',   $element->setMultiple(false)->getInputName());
+        $this->assertEquals('form[fieldset][test_name]', $element->setMultiple(true)->getInputName());
 
         // exception
         $this->assertEquals('test', $element->getNameFromMixed(new \stdClass()));
-    }
-
-    public function testGetters()
-    {
-        $element = new Element('test');
-        $this->assertEquals('new', $element->setPlaceholder('new')->getPlaceholder());
-        $this->assertEquals(array('new'), $element->setValue('new')->getValue());
-        $this->assertEquals(array('new', 'new2'), $element->addValue('new2')->getValue());
-        $this->assertEquals(array('new', 'new2', 'key' => 'test'), $element->addValue('test', 'key')->getValue());
-
-        $this->assertEquals('new', $element->setTitle('new')->getTitle());
-        $this->assertEquals('new', $element->setLabel('new')->getLabel());
-        $this->assertEquals('new', $element->setId('new')->getId());
-        $this->assertEquals(true, $element->setIsMultiple('1')->getIsMultiple());
-        $this->assertEquals(true, $element->setIsMultiple(true)->isMultiple());
-
-
-        $this->assertEquals(null, $element->getForm());
-
-        $form = new Form();
-        $fieldset = new Fieldset();
-
-        // @fix it
-        $this->assertInstanceOf('App\Form\Fieldset', $form->setForm($form)->getForm());
-        $this->assertInstanceOf('App\Form\Fieldset', $form->setForm($fieldset)->getForm());
-
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testFilters()
-    {
-        $elementArray = array(
-            'type' => 'App\Form\Element',
-            'options' => array(
-                'model_link' => 'Model\TestModel',
-                'filters' => array(
-                    'App\Filter\Name',
-                )
-            )
-        );
-
-        $factory = new Factory();
-        $element = $factory->create($elementArray);
-
-        $element->setValue(' test');
-        $this->assertEquals(array('test'), $element->getValue());
-
-        $element->setValue('    ');
-        $this->assertEquals(array(''), $element->getValue());
-
-        $element->setFilters(array('type' => 'Zend\Filter\Digits'));
-        $element->setValue(0);
-        $this->assertEquals(array('0'), $element->getValue());
-
-        $element->setValue('Тест69');
-        $this->assertEquals(array('69'), $element->getValue());
-
-        $elementArray = array(
-            'type' => 'App\Form\Element',
-            'options' => array(
-                'model_link' => 'Model\TestModel',
-                'filters' => array(
-                    array('type' => 'Zend\Filter\Digits'),
-                    array('Zend\Filter\Int'),
-                )
-            )
-        );
-
-        $factory = new Factory();
-        $element = $factory->create($elementArray);
-
-        $this->assertEquals(array('69 тест'), $element->setValue('69 тест')->getRawValue());
-        $this->assertEquals(array('69'), $element->setValue('69 тест')->getValue());
-        $this->assertEquals(array('69 тест'), $element->getRawValue());
-        $this->assertEquals(array('69'), $element->setValue('тест 69')->getValue());
-        $this->assertEquals(array(''), $element->setValue('тест с очень длинным префиксом')->getValue());
-
-        $filter = Filter::getFilterInstance('Zend\Filter\Int');
-
-        $this->assertTrue($element->hasFilter($filter));
-        $this->assertFalse($element->hasFilter('Zend\Filter\Float'));
-        $this->assertEquals($filter, $element->getFilter($filter));
-
-        $this->assertNull($element->getFilter('Zend\Filter\Float'));
-        $this->assertInternalType('array', $element->getFilter());
-
-        // exception
-        $elementArray = array(
-            'type' => 'App\Form\Element',
-            'options' => array(
-                'filters' => array(
-                    array(),
-                )
-            )
-        );
-        $element = $factory->create($elementArray);
     }
 
 
@@ -489,30 +272,5 @@ EOS;
         $this->assertEquals('yo2', $element->getClass());
 
     }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testMessages()
-    {
-        $element = new Element('some_field');
-        $element->setModelLink('Model\TestModel');
-        $element->setValue('Значение которое не пройдет валидацию');
-
-        $this->assertFalse($element->isValid());
-        $this->assertEquals(array(array('stringLengthTooLong' => 'The input is more than 10 characters long')), $element->getMessages());
-
-        $element->removeModelLink()
-                ->clearMessages()
-                ->addValidator('Zend\Validator\StringLength', array('min' => 1, 'max' => 5))
-                ->isValid();
-        $this->assertEquals(array(array('stringLengthTooLong' => 'The input is more than 5 characters long')), $element->getMessages());
-
-        $this->assertEquals(array('stringLengthTooLong' => 'The input is more than 5 characters long'), $element->getMessages(0));
-        $this->assertEquals(array(), $element->getMessages(1));
-
-        $element->setMessages(new \stdClass());
-    }
-
 }
 

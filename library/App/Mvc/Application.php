@@ -32,18 +32,12 @@ class Application implements ApplicationInterface
      */
     private $serviceManager;
 
-    /**
-     * @var \App\Mvc\Block\Manager
-     */
-    private $blockManager;
-
     private $requestUri;
 
     public function __construct($config, ServiceManager $serviceManager)
     {
         $this->config         = $config;
         $this->serviceManager = $serviceManager;
-        //$this->blockManager   = $serviceManager->get('block_manager');
         $this->request        = $serviceManager->get('Request');
         $this->response       = $serviceManager->get('Response');
         $this->requestUri     = $this->getRequest()->getRequestUri();
@@ -71,14 +65,6 @@ class Application implements ApplicationInterface
     public function getServiceManager()
     {
         return $this->serviceManager;
-    }
-
-    /**
-     * @return Block\Manager
-     */
-    public function getBlockManager()
-    {
-        return $this->blockManager;
     }
 
     /**
@@ -163,12 +149,6 @@ class Application implements ApplicationInterface
 
             $return['_route_name'] = $routeName;
 
-            if (!isset($routeParams['block'])) {
-                $return['block'] = $routeName;
-            } else {
-                $return['block'] = $routeParams['block'];
-            }
-
             break;
         }
 
@@ -251,13 +231,6 @@ class Application implements ApplicationInterface
     {
         $smConfig = isset($configuration['service_manager']) ? $configuration['service_manager'] : array();
         $serviceManager = new ServiceManager(new Config($smConfig));
-
-        /*if (!$serviceManager->has('block_manager')) {
-            throw new InvalidArgumentException('Block manager not located in ServiceManger');
-        }*/
-
-        //print_r($configuration);
-        //die;
 
         return $serviceManager->get('application');
     }
