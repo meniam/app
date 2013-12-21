@@ -339,6 +339,14 @@ class Request
         }
     }
 
+    public function getSubdomain()
+    {
+        $domainArray = array_slice(explode('.', $this->getHttpHost()), 0, -2);
+
+        return reset($domainArray);
+
+    }
+
     /**
      * Get the client's IP addres
      *

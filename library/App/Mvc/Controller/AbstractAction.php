@@ -197,10 +197,7 @@ abstract class  AbstractAction
             $view->set($actionResponse);
         }*/
 
-
-
         $actionResponse['content'] = $view->includeTpl($viewScript, $actionResponse);
-
 
         $this->getResponse()
              ->setBody(
