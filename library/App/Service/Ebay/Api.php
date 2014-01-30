@@ -123,7 +123,7 @@ class Api
      *
      * @return string
      */
-    protected function buildURLArray ($filterarray)
+    private function buildURLArray ($filterarray)
     {
         $urlfilter = '';
         $i = 0;
@@ -147,6 +147,26 @@ class Api
 
         return $urlfilter;
     }
+
+    public function getList(ListCond $listCond)
+    {
+        $filter = $listCond->getParams();
+        $params = array(
+            'outputSelector' => array(//'ConditionHistogram',
+                                      //'CategoryHistogram',
+                                      'AspectHistogram',
+                                      //'PictureURLSuperSize',
+                                      //'SellerInfo',
+                                      //'UnitPriceInfo'
+            ),
+            'keywords' =>   $listCond->getKeyword(),
+            'paginationInput.pageNumber' =>     1,
+            'paginationInput.entriesPerPage' => 25
+        );
+
+        return $this->callFinding('findItemsAdvanced', $params, $filter);
+    }
+
 
     public function callShippingCosts($id)
     {
@@ -203,16 +223,21 @@ class Api
         $url .= '&X-EBAY-SOA-GLOBAL-ID=EBAY-US';
 
         foreach ($params as $k => $v) {
-            $url .= '&' . $k . '=' . urlencode($v);
+            if (is_array($v)) {
+                $i = 0;
+                foreach ($v as $val) {
+                    $url .= '&' . $k . '(' . $i++ .')=' . urlencode($val);
+                }
+            } else {
+                $url .= '&' . $k . '=' . urlencode($v);
+            }
         }
 
+
         $url .= $this->buildURLArray($filter);
-
         $cacheId = 'ebay_api_url_' . sha1($url);
-
         if (!$response = $this->loadFromCache($cacheId)) {
             $response = self::getClient()->get($url)->getBody();
-
             $this->saveToCache($cacheId, $response, 3600);
         }
 

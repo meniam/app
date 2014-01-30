@@ -125,6 +125,13 @@ class Application implements ApplicationInterface
         }
 
         $routes = $this->config['routes'];
+        $subdomain = $this->getRequest()->getSubdomain('_root');
+
+        if (isset($routes[$subdomain])) {
+            $routes = $routes[$subdomain];
+        } else {
+            return false;
+        }
 
         list($path) = explode('?', $this->requestUri, 2);
 

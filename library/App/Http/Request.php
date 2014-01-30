@@ -339,12 +339,16 @@ class Request
         }
     }
 
-    public function getSubdomain()
+    /**
+     * @param null $default
+     *
+     * @return mixed|null
+     */
+    public function getSubdomain($default = null)
     {
         $domainArray = array_slice(explode('.', $this->getHttpHost()), 0, -2);
-
-        return reset($domainArray);
-
+        $domain = reset($domainArray);
+        return $domain ? $domain : $default;
     }
 
     /**

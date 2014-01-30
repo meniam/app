@@ -7,10 +7,16 @@ use App\Exception\InvalidArgumentException;
 class UrlBuilder implements UrlBuilderInterface
 {
     private $routeList = array();
+    private $host = null;
+    private $subdomain = null;
+    private $schema = null;
 
-    public function __construct(array $routes)
+    public function __construct(array $routes, $host = null, $subdomain = null, $schema = 'http')
     {
         $this->routeList = $routes;
+        $this->subdomain = (string)$subdomain;
+        $this->host = preg_replace('#^' . $subdomain .'\.#si', '', (string)$host);
+        $this->schema = (string)$schema;
     }
 
     public function url($route, $params = array())
@@ -34,7 +40,19 @@ class UrlBuilder implements UrlBuilderInterface
             }
         }
 
-        return $url;
+        $urlPrefix = '';
+        if (isset($this->schema) && isset($this->host)) {
+            $urlPrefix = $this->schema . '://';
+            if (isset($this->subdomain)) {
+                $urlPrefix .= $this->subdomain . '.';
+            }
+            $urlPrefix .= $this->host;
+        }
 
+        if ($urlPrefix && $url == '/') {
+            return $urlPrefix;
+        }
+
+        return $urlPrefix . $url;
     }
 }
