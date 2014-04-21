@@ -152,17 +152,23 @@ class Api
     {
         $filter = $listCond->getParams();
         $params = array(
-            'outputSelector' => array(//'ConditionHistogram',
-                                      //'CategoryHistogram',
+            'outputSelector' => array('ConditionHistogram',
+                                      'CategoryHistogram',
                                       'AspectHistogram',
-                                      //'PictureURLSuperSize',
-                                      //'SellerInfo',
-                                      //'UnitPriceInfo'
+                                      'PictureURLSuperSize',
+                                      'SellerInfo'
             ),
-            'keywords' =>   $listCond->getKeyword(),
-            'paginationInput.pageNumber' =>     1,
-            'paginationInput.entriesPerPage' => 25
+            'paginationInput.pageNumber' =>     $listCond->getPage(),
+            'paginationInput.entriesPerPage' => $listCond->getItemsPerPage()
         );
+
+        if ($keyword = $listCond->getKeyword()) {
+            $params['keywords'] = $keyword;
+        }
+
+        if ($category = $listCond->getCategory()) {
+            $params['categoryId'] = $category;
+        }
 
         return $this->callFinding('findItemsAdvanced', $params, $filter);
     }

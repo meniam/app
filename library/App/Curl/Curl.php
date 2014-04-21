@@ -149,7 +149,7 @@ class Curl
         $this->setOpt(CURLOPT_HEADER, 1);
         $this->setOpt(CURLOPT_RETURNTRANSFER, 1);
         $this->setOpt(CURLOPT_FOLLOWLOCATION, 0);
-        $this->setOpt(CURLOPT_TIMEOUT, 30);
+        $this->setOpt(CURLOPT_TIMEOUT, 5);
         //$this->setOpt(CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.0.5) Gecko/2008120122 Firefox/3.1.5');
         $this->rotateUserAgent();
     }

@@ -4,6 +4,7 @@ namespace App\Mvc;
 
 use App\Mvc\Block\Block;
 use App\Mvc\Block\Manager;
+use App\Mvc\SaveGet\SaveGet;
 use App\Mvc\UrlBuilder\UrlBuilder;
 use App\ServiceManager\ServiceManager;
 
@@ -23,6 +24,11 @@ class View extends \Blitz
      * @var UrlBuilder
      */
     private $urlBuilder;
+
+    /**
+     * @var SaveGet
+     */
+    private $saveGet;
 
     public function __construct($template = null, $viewPath = null)
     {
@@ -44,6 +50,22 @@ class View extends \Blitz
         return $this->urlBuilder->url($route, $params);
     }
 
+    /**
+     * @param array $replace
+     * @param array $delete
+     * @param null  $link
+     *
+     * @return mixed
+     */
+    public function saveGet($replace = array(), $delete = array(), $link = null)
+    {
+        if (!$this->saveGet) {
+            $this->saveGet = self::getServiceManager()->get('save_get');
+        }
+
+        return $this->saveGet->url($replace, $delete, $link);
+    }
+
     public function img($img)
     {
         return $img;
@@ -57,6 +79,9 @@ class View extends \Blitz
 
     public function setViewPath($path)
     {
+        if (is_array($path)) {
+            $path = reset($path);
+        }
         ini_set('blitz.path', realpath($path) . '/');
     }
 
@@ -103,7 +128,13 @@ class View extends \Blitz
      */
     public function addViewPath($viewPath)
     {
-        self::$viewPathList[] = realpath($viewPath);
+        if (is_array($viewPath)) {
+            foreach ($viewPath as $vp) {
+                self::$viewPathList[] = realpath($vp);
+            }
+        } else {
+            self::$viewPathList[] = realpath($viewPath);
+        }
     }
 
     /**

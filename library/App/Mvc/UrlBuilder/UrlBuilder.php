@@ -19,31 +19,39 @@ class UrlBuilder implements UrlBuilderInterface
         $this->schema = (string)$schema;
     }
 
-    public function url($route, $params = array())
+    public function url($route, $params = array(), $domain = '_root')
     {
         $route = (string)$route;
 
-        if (!isset($this->routeList[$route])) {
+        if (!isset($this->routeList[$domain][$route])) {
             throw new InvalidArgumentException('Route ' . $route . ' not found');
         }
 
-        $defaults = isset($this->routeList[$route]['defaults']) ? $this->routeList[$route]['defaults'] : array();
 
-        $url                   = $this->routeList[$route]['spec'];
+        $defaults = isset($this->routeList[$domain][$route]['defaults']) ? $this->routeList[$domain][$route]['defaults'] : array();
+
+        $url                   = $this->routeList[$domain][$route]['spec'];
         $mergedParams          = array_merge($defaults, $params);
 
         foreach ($mergedParams as $key => $value) {
+            if ($key[0] == '!') {
+                $key = substr($key, 1);
+                $noEscape = true;
+            } else {
+                $noEscape = false;
+            }
+
             $spec = '%' . $key . '%';
 
             if (strpos($url, $spec) !== false) {
-                $url = str_replace($spec, rawurlencode($value), $url);
+                $url = str_replace($spec, ($noEscape ? $value : rawurlencode($value)), $url);
             }
         }
 
         $urlPrefix = '';
         if (isset($this->schema) && isset($this->host)) {
             $urlPrefix = $this->schema . '://';
-            if (isset($this->subdomain)) {
+            if (!empty($this->subdomain)) {
                 $urlPrefix .= $this->subdomain . '.';
             }
             $urlPrefix .= $this->host;

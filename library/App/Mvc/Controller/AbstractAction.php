@@ -168,6 +168,9 @@ abstract class  AbstractAction
 
     public function postDispatch($actionResponse = array())
     {
+        $request = $this->getRequest();
+        $this->setLayout($request->getParam('layout', $this->getLayout()));
+
         $this->viewRenderer($actionResponse);
     }
 

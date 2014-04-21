@@ -16,6 +16,7 @@ class ListCond
     const SORT_ORDER_BEST_MATCH = 'BestMatch';
 
     private $page = 1;
+    private $itemsPerPage = 50;
     private $category = array();
     private $keyword  = '';
 
@@ -114,7 +115,7 @@ class ListCond
      *
      * @return $this
      */
-    public function setPage($page)
+    public function setPage($page, $itemsPerPage = 50)
     {
         $page = (int)$page;
 
@@ -125,7 +126,24 @@ class ListCond
         }
 
         $this->page = $page;
+        $this->itemsPerPage = (int)$itemsPerPage;
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPage()
+    {
+        return $this->page;
+    }
+
+    /**
+     * @return int
+     */
+    public function getItemsPerPage()
+    {
+        return $this->itemsPerPage ? $this->itemsPerPage : 50;
     }
 
     /**
@@ -170,4 +188,10 @@ class ListCond
     {
         return $this->keyword;
     }
+
+    public function getCategory()
+    {
+        return $this->category;
+    }
+
 }

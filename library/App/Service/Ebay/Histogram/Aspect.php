@@ -8,6 +8,9 @@ use Model\EbayAspectValueModel;
 
 class Aspect extends Histogram
 {
+    private static $cache = array();
+
+    private static $aspectValueCache = array();
 
     public function __construct($input = null)
     {
@@ -25,15 +28,33 @@ class Aspect extends Histogram
             }
 
             foreach ($item['values'] as $k => $value) {
-                $valueItem = EbayAspectValueModel::getInstance()
-                                ->import(array('value' => $item['name'],
-                                               'ebay_aspect_id' => $aspect->getId()));
+                if (isset(self::$cache[$k])) {
+                    $item['values'][$k] = self::$cache[$k];
+                    continue;
+                }
 
-                if ($valueItem->getResult()) {
-                    $valueItem = EbayAspectValueModel::getInstance()->getById($valueItem->getResult());
 
-                    foreach ($valueItem->toArray() as $k2 => $v2) {
-                        $item['values'][$k][$k2] = $v2;
+                if (!isset(self::$aspectValueCache[$item['name']][$aspect->getId()])) {
+                    $result = EbayAspectValueModel::getInstance()->getByEbayAspectAndValue($item['name'], $aspect->getId());
+                    self::$aspectValueCache[$item['name']][$aspect->getId()] = $result;
+                } else {
+                    $result = self::$aspectValueCache[$item['name']][$aspect->getId()];
+                }
+
+
+                if (!$result->getId()) {
+                    $valueItem = EbayAspectValueModel::getInstance()
+                                    ->import(array('value' => $item['name'],
+                                                   'ebay_aspect_id' => $aspect->getId()));
+
+                    if ($valueItem->getResult()) {
+                        $valueItem = EbayAspectValueModel::getInstance()->getById($valueItem->getResult());
+
+                        foreach ($valueItem->toArray() as $k2 => $v2) {
+                            $item['values'][$k][$k2] = $v2;
+                        }
+
+                        self::$cache[$k] = $item['values'][$k];
                     }
                 }
             }
