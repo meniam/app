@@ -75,7 +75,7 @@ class Image
 	 */
 	protected $_throwException = true;
 
-	protected static $_convertBinary = '/opt/local/bin/convert';
+	protected static $_convertBinary = 'convert';
 
 	protected $_filters = array();
 
