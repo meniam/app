@@ -260,10 +260,10 @@ class Application implements ApplicationInterface
         $action     = (new DashToCamelCase())->filter($cliParams[1]);
 
         $controllerClass = '\\Application\\Console\\Controller\\' . $controller . 'Controller';
-        $actionName = $action . 'Action';
+        $actionName = mb_strtolower(substr($action . 'Action', 0, 1)) . substr($action . 'Action', 1);
+
 
         if (method_exists($controllerClass, $actionName)) {
-
             $usage = $controllerClass::getConsoleUsage();
             $moduleDescription = array_shift($usage);
 
@@ -419,7 +419,7 @@ class Application implements ApplicationInterface
     {
         if (!$this->getRequest()->getParam('controller')) {
             $console = Console::getInstance();
-            $modules = array('image');
+            $modules = array('screenshot');
 
             $usageInfo = array(
                 array( '--thread='       , 'current thread'    , 'Current thread number' ),
