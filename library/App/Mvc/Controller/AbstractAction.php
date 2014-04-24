@@ -202,10 +202,14 @@ abstract class  AbstractAction
 
         $actionResponse['content'] = $view->includeTpl($viewScript, $actionResponse);
 
+        if ($this->withoutLayout) {
+            $content = $actionResponse['content'];
+        } else {
+            $content = $this->getLayoutView()
+                 ->includeTpl($this->getLayout() . '.phtml', $actionResponse);
+        }
         $this->getResponse()
-             ->setBody(
-                $this->getLayoutView()
-                     ->includeTpl($this->getLayout() . '.phtml', $actionResponse));
+            ->setBody($content);
 
         //$this->getResponse()->setBody($content);
     }
