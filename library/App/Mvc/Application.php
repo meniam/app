@@ -293,10 +293,11 @@ class Application implements ApplicationInterface
             } else {
                 $this->getRequest()->setParams($matchParams);
 
+                // Номер запускаемого процесса
                 $thread = $this->getRequest()->getParam('thread', -1);
                 $instances = $this->getRequest()->getParam('instances', 1);
 
-                for ($i=0; $i<$instances; $i++) {
+                for ($i=1; $i<=$instances; $i++) {
                     $pidFile = $this->getPidFile($i);
 
                     if (!($pidCheck = $this->checkPid($pidFile))) {
@@ -329,7 +330,7 @@ class Application implements ApplicationInterface
                 $this->alive();
 
                 if ($this->getRequest()->getParam('daemon') > 0) {
-                    $sleep = max($this->getRequest()->getParam('daemon-interval'), 100000);
+                    $sleep = max($this->getRequest()->getParam('daemon-interval'), 1000000);
                     while ($sleep) {
                         $result = $this->dispatchControllerAction($controller, $action);
 

@@ -143,7 +143,10 @@ class Image
 				if (strtoupper(substr(PHP_OS, 0,3)) == 'WIN') {
 					$command =  "-quality {$quality} -resize x{$doubleHeight} -resize {$doubleWidth}x^< -resize 50%% -gravity {$gravity} -crop {$width}x{$height}+0+0 +repage '{$file}' '{$outputFile}'";
 				} else {
-					$command = "-quality 85 -resize x{$doubleHeight} -resize '{$doubleWidth}x<' -resize 50% -gravity {$gravity} -crop {$width}x{$height}+0+0 +repage '{$file}' '{$outputFile}'";
+					$command = "-quality 100 -resize x{$doubleHeight} -resize '{$doubleWidth}x<' -resize 50% -gravity {$gravity} -crop {$width}x{$height}+0+0 +repage '{$file}' '{$outputFile}'";
+                    //$command = "-quality {$quality} -resize x{$height} -resize '{$width}x<' -gravity {$gravity} -crop {$width}x{$height}+0+0 +repage '{$file}' '{$outputFile}'";
+                    //$command = "-quality 100 -gravity {$gravity} -crop {$width}x{$height}+0+0 +repage '{$file}' '{$outputFile}'";
+                    //$command = "-quality 100 -resize {$width}x{$height}^ -gravity {$gravity} -crop {$width}x{$height}+0+0 -trim +repage '{$file}' '{$outputFile}'";
 				}
 
 				@system(self::$_convertBinary . ' ' . $command);
@@ -172,12 +175,12 @@ class Image
 
 				if ($srcRatio > $dstRatio) {
 					$resize = "{$width}x";
-					$command = "\( -size {$width}x{$height} xc:{$backgroundColor} \) \( -geometry {$resize} '{$file}' \) -gravity {$gravity} -composite +repage '{$outputFile}'";
+					$command = "\\( -size {$width}x{$height} xc:{$backgroundColor} \\) \\( -geometry {$resize} '{$file}' \\) -gravity {$gravity} -composite +repage '{$outputFile}'";
 				} else if ($srcRatio < $dstRatio) {
 					$resize = "x{$height}";
-					$command = "\( -size {$width}x{$height} xc:{$backgroundColor} \) \( -geometry {$resize} '{$file}' \) -gravity {$gravity} -composite +repage '{$outputFile}'";
+					$command = "\\( -size {$width}x{$height} xc:{$backgroundColor} \\) \\( -geometry {$resize} '{$file}' \\) -gravity {$gravity} -composite +repage '{$outputFile}'";
 				} else {
-					$command = "\( -size {$width}x{$height} xc:{$backgroundColor} \) \( -resize {$width}x{$height}^ '{$file}' \) -gravity {$gravity} -composite +repage '{$outputFile}'";
+					$command = "\\( -size {$width}x{$height} xc:{$backgroundColor} \\) \\( -resize {$width}x{$height}^ '{$file}' \\) -gravity {$gravity} -composite +repage '{$outputFile}'";
 				}
 				@system(self::$_convertBinary . ' ' . $command);
 
