@@ -132,15 +132,13 @@ class Application extends \App\Mvc\Application
         $cliParams = $this->prepareCliParams($argv);
 
         if ($this->getControllerName() == 'system') {
-            return $this->systemController($this->getActionName());
+            return $this->systemController($this->getActionName(), $cliParams);
         }
 
         if (count($cliParams) < 2) {
             return $this->getConsoleUsageFull();
         }
 
-        $pidFile   = $this->getPidFile();
-        $aliveFile = $this->getAliveFile();
 
         $controller = (new DashToCamelCase())->filter($cliParams[0]);
         $action     = (new DashToCamelCase())->filter($cliParams[1]);
@@ -192,6 +190,8 @@ class Application extends \App\Mvc\Application
                     if ($thread == -1 && !$pidCheck) {
                         @unlink($pidFile);
                         $thread = $i;
+                        $this->getRequest()->setParam('thread', $i);
+                        break;
                     } elseif ($thread == $i && $pidCheck) {
                         $this->getLog()
                             ->debug("Thread #{$thread} exists and work properly")
@@ -211,15 +211,25 @@ class Application extends \App\Mvc\Application
                 $this->getRequest()->setParam('instances', $instances);
 
                 $pidFile = $this->getPidFile($thread);
+                $aliveFile = $this->getAliveFile($thread);
                 @file_put_contents($pidFile, getmypid());
-                $this->alive();
+                $this->alive(false, $thread);
 
                 if ($this->getRequest()->getParam('daemon') > 0) {
                     $sleep = max($this->getRequest()->getParam('daemon-interval'), 1000000);
                     while ($sleep) {
                         $result = $this->dispatchControllerAction($controller, $action);
 
-                        $this->alive(true);
+                        $stopFile = preg_replace('#.pid$#si', '.stop', $pidFile);
+                        if (is_file($stopFile)) {
+                            $this->alive(true, $thread);
+                            @unlink($pidFile);
+                            @unlink($aliveFile);
+                            @unlink($stopFile);
+                            break;
+                        }
+
+                        $this->alive(true, $thread);
                         usleep($sleep);
                     }
                 } else {
@@ -230,8 +240,8 @@ class Application extends \App\Mvc\Application
             $result = $this->getConsoleUsageFull();
         }
 
-        @unlink($pidFile);
-        @unlink($aliveFile);
+        //@unlink($pidFile);
+        //@unlink($aliveFile);
 
         return $result;
     }
@@ -241,18 +251,21 @@ class Application extends \App\Mvc\Application
      *
      * @return null
      */
-    protected function systemController($action = null)
+    protected function systemController($action = null, $cliParams = array())
     {
         switch ($action) {
-            case 'status';
-                return $this->statusAction();
+            case 'status':
+                return $this->statusAction($cliParams);
+                break;
+            case 'stop':
+                return $this->stopAction($cliParams);
                 break;
         }
 
         return null;
     }
 
-    protected function statusAction()
+    protected function statusAction($cliParams)
     {
         $console = Console::getInstance();
 
@@ -277,6 +290,59 @@ class Application extends \App\Mvc\Application
         }
 
         return null;
+    }
+
+    /**
+     * @param $cliParams
+     */
+    protected function stopAction($cliParams)
+    {
+        $controller = isset($cliParams[2]) ? $cliParams[2] : null;
+        $action     = isset($cliParams[3]) ? $cliParams[3] : null;
+        $thread     = isset($cliParams[4]) ? $cliParams[4] : null;
+
+        $pattern = (string) $controller;
+
+        if ($action) {
+            $pattern .= ($pattern ? '_' : '') . (string)$action;
+        }
+
+        if (!is_null($thread)) {
+            $pattern .= ($pattern ? '_' : '') . (int)$thread;
+        }
+
+        foreach (glob($this->getRunDir() . DIRECTORY_SEPARATOR . $pattern . '*.pid') as $pidFile) {
+            if ($this->checkPid($pidFile)) {
+                $stopFilename = preg_replace('#.pid$#', '.stop', $pidFile);
+                touch($stopFilename);
+                $this->getLog()->debug('Created stop file: ' . $stopFilename);
+            }
+
+            $startTime = time();
+            while ($this->checkPid($pidFile)) {
+                if (time() - $startTime > 20) {
+                    $this->hardStop($pidFile);
+                    break;
+                }
+                usleep(500000); // 0.5 sec
+            }
+
+        }
+    }
+
+    public function hardStop($pidFile)
+    {
+        $killSig = array(SIGTERM, SIGINT, SIGHUP, SIGKILL);
+
+        foreach ($killSig as $sig) {
+            if (!$pid = $this->getPid($pidFile)) {
+                return true;
+            }
+
+            posix_kill($pid, $sig);
+        }
+
+        return false;
     }
 
     /**
@@ -384,15 +450,16 @@ class Application extends \App\Mvc\Application
         return $runDir;
     }
 
-
     /**
      * @param bool $isNewCircle
      *
+     * @param null $thread
+     *
      * @return $this
      */
-    public function alive($isNewCircle = false)
+    public function alive($isNewCircle = false, $thread = null)
     {
-        if ($filename = $this->getAliveFile()) {
+        if ($filename = $this->getAliveFile($thread)) {
             if ($isNewCircle) {
                 $this->circlesCount++;
             }
@@ -432,19 +499,19 @@ class Application extends \App\Mvc\Application
         return $pidFile;
     }
 
-    protected function stopByThread($thread = 0)
+    protected function getPid($filename)
     {
-        if (!$this->getControllerName() || !$this->getActionName()) {
-            return false;
+        if (!is_numeric($filename)) {
+            if (is_file($filename)) {
+                $pidNum = intval(@file_get_contents($filename));
+            } else {
+                return false;
+            }
+        } else {
+            $pidNum = (int)$filename;
         }
 
-        if ($this->checkPid($this->getPidFile($thread))) {
-            $stopFilename = $this->getControllerName() . '_' . $this->getActionName() . '_' . $thread . '.stop';
-            $stopFilename = $this->getRunDir() . DIRECTORY_SEPARATOR . $stopFilename;
-            touch($stopFilename);
-        }
-
-        return true;
+        return $pidNum;
     }
 
     /**
@@ -454,14 +521,10 @@ class Application extends \App\Mvc\Application
      */
     protected function checkPid($filename)
     {
-        if (!is_numeric($filename)) {
-            if (is_file($filename)) {
-                $pidNum = intval(file_get_contents($filename));
-            } else {
-                return false;
-            }
-        } else {
-            $pidNum = (int)$filename;
+        $pidNum = $this->getPid($filename);
+
+        if (!$pidNum) {
+            return false;
         }
 
         $cmd = "ps $pidNum";
@@ -477,14 +540,14 @@ class Application extends \App\Mvc\Application
 
         // the process is dead
         return false;
-
     }
 
-
     /**
+     * @param null $thread
+     *
      * @return string
      */
-    protected function getAliveFile()
+    protected function getAliveFile($thread = null)
     {
         if (!$this->getControllerName() || !$this->getActionName()) {
             return false;
@@ -495,10 +558,12 @@ class Application extends \App\Mvc\Application
             @mkdir($runDir, 0750, true);
         }
 
-        $this->thread = 0;
+        if (is_null($thread)) {
+            $thread = (int) $this->thread ? (int) $this->thread : 1;
+        }
 
-        $aliveFilename = $this->getControllerName() . '_' . $this->getActionName() . '_' . $this->thread . '.alive';
-        $aliveFilename = $runDir . '/' . $aliveFilename;
+        $aliveFilename = $this->getControllerName() . '_' . $this->getActionName() . '_' . $thread . '.alive';
+        $aliveFilename = $runDir . DIRECTORY_SEPARATOR . $aliveFilename;
 
         return $aliveFilename;
     }
