@@ -6,11 +6,40 @@ use App\Exception\InvalidArgumentException;
 
 class UrlBuilder implements UrlBuilderInterface
 {
+    /**
+     * Routes
+     *
+     * @var array
+     */
     private $routeList = array();
+
+    /**
+     * current host
+     *
+     * @var string
+     */
     private $host = null;
+
+    /**
+     * current subdomain
+     *
+     * @var string
+     */
     private $subdomain = null;
+
+    /**
+     * current http schema
+     *
+     * @var string
+     */
     private $schema = null;
 
+    /**
+     * @param array  $routes
+     * @param null   $host
+     * @param null   $subdomain
+     * @param string $schema
+     */
     public function __construct(array $routes, $host = null, $subdomain = null, $schema = 'http')
     {
         $this->routeList = $routes;
@@ -19,6 +48,13 @@ class UrlBuilder implements UrlBuilderInterface
         $this->schema = (string)$schema;
     }
 
+    /**
+     * @param        $route
+     * @param array  $params
+     * @param string $domain
+     *
+     * @return string
+     */
     public function url($route, $params = array(), $domain = '_root')
     {
         $route = (string)$route;

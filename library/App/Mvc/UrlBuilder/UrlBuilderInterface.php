@@ -4,5 +4,5 @@ namespace App\Mvc\UrlBuilder;
 
 interface UrlBuilderInterface
 {
-    public function url($route, $params = array());
+    public function url($route, $params = array(), $domain = '_root');
 }

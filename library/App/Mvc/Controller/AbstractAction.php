@@ -5,7 +5,9 @@ namespace App\Mvc\Controller;
 use App\Http\Header\Cookie;
 use App\Http\Request;
 use App\Http\Response;
-use App\Mvc\Block\Block;
+use App\ServiceManager\ServiceManager;
+use Model\DateTime\DateInterval;
+use Model\DateTime\DateTime;
 
 abstract class  AbstractAction
 {
@@ -40,9 +42,6 @@ abstract class  AbstractAction
      * @var string
      */
     private $viewScript;
-
-    /** @var \Model\Entity\UserEntity */
-    private static $currentUser;
 
     /**
      * Остановить выполнение
@@ -116,29 +115,6 @@ abstract class  AbstractAction
     }
 
     /**
-     * @return \App\Mvc\Block\Block
-     */
-    public function getCurrentBlock()
-    {
-        return $this->currentBlock;
-    }
-
-    /**
-     * @return \Model\Entity\UserEntity
-     */
-    public function getCurrentUser()
-    {
-        if (!self::$currentUser) {
-            self::$currentUser = $this->getServiceManager()->get('user');
-        }
-
-        return self::$currentUser;
-    }
-
-    public function indexAction()
-    {}
-
-    /**
      * @param $errorType
      * @return \App\Http\Response
      */
@@ -170,7 +146,6 @@ abstract class  AbstractAction
     {
         $request = $this->getRequest();
         $this->setLayout($request->getParam('layout', $this->getLayout()));
-
         $this->viewRenderer($actionResponse);
     }
 
@@ -230,7 +205,9 @@ abstract class  AbstractAction
         return $this->response;
     }
 
-
+    /**
+     * @return ServiceManager
+     */
     public static function getServiceManager()
     {
         return self::$serviceManager;
@@ -285,63 +262,13 @@ abstract class  AbstractAction
     }
 
     /**
-     * @return \Model\Entity\LanguageEntity
-     */
-    public function getLanguage()
-    {
-        $language = new \Model\Entity\LanguageEntity(array('id' => 1, 'code' => 'en'));
-        return $language;
-    }
-
-    public function renderTitle($titleArray = array(), $delimiter = ' - ')
-    {
-        return implode($delimiter, array_map('trim', $titleArray));
-    }
-
-    public function renderMetaKeywords($keywordListArray = array())
-    {
-        if (is_string($keywordListArray)) {
-            $keywordListArray = explode(',', $keywordListArray);
-        }
-
-        $keywordFilter = function ($str) {
-            return trim(preg_replace('#\s+#', ' ', $str));
-        };
-
-        if (count($keywordListArray) < 2) {
-            $keywordListArray = array_map(array($this, 'stripText'), explode(' ', reset($keywordListArray)));
-        }
-
-        $keywordListArray = array_map($keywordFilter, $keywordListArray);
-        $keywordListArray = array_map(function ($a) { return mb_strtolower($a, 'UTF-8'); }, array_unique($keywordListArray));
-
-        return implode(', ', $keywordListArray);
-    }
-
-    public function renderMetaDescription($metaDescription)
-    {
-        if (is_array($metaDescription)) {
-            $metaDescription = implode('. ', $metaDescription);
-        }
-
-        return mb_substr($this->stripText($metaDescription), 0, 255, 'UTF-8');
-    }
-
-    public function stripText($str)
-    {
-        $str = \App\Filter\Filter::filterStatic($str, '\App\Filter\StripText');
-        $str = str_replace('"', '&quot;', $str);
-        return $str;
-    }
-
-    /**
      * @param string $name
      * @param string $value
-     * @param App_DateTime|App_DateInterval|int $expires Date, interval or UNIX timestamp
+     * @param DateTime|DateInterval|int $expires Date, interval or UNIX timestamp
      * @param string $path
      * @param string $domain
      * @param bool $secure
-     * @return BaseController
+     * @return $this
      */
     public function setCookie($name, $value, $expires = null, $path = null, $domain = null, $secure = false)
     {
@@ -354,10 +281,11 @@ abstract class  AbstractAction
         return $this;
     }
 
+    /**
+     *
+     */
     public function preDispatch()
-    {
-
-    }
+    { }
 
     /**
      * @param boolean $breakRun
@@ -375,6 +303,7 @@ abstract class  AbstractAction
         return $this->breakRun;
     }
 
+    /**
     public function forward($action, $controller = null, array $params = array())
     {
         $this->getServiceManager()->get('application')->run($url);
@@ -382,7 +311,7 @@ abstract class  AbstractAction
         $params['controller'] = $controller ? $controller : $this->getRequest()->getParam('controller');
 
         return $this->setForward($params);
-    }
+    }*/
 
     /**
      * @param $url
@@ -393,18 +322,6 @@ abstract class  AbstractAction
         $this->getResponse()->setRedirect($url);
         $this->setBreakRun(true);
         return $this;
-    }
-
-    /**
-     * @return \App\Mvc\Block\Manager
-     */
-    public function getBlockManager()
-    {
-        if (!$this->blockManager) {
-            $this->blockManager = $this->getServiceManager()->get('block_manager');
-        }
-
-        return $this->blockManager;
     }
 
     /**
