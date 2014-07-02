@@ -148,7 +148,6 @@ class Application
         list($path) = explode('?', $this->requestUri, 2);
 
         $path = trim(urldecode($path), '/ ');
-
         $return = false;
 
         foreach ($routes as $routeName => $routeParams) {
@@ -209,14 +208,13 @@ class Application
         try {
             $request = $this->getServiceManager()->get('request');
 
-            $controllerClass = $this->controllerNamespace . implode('', array_map('ucfirst', explode('-', $controllerParam))) . 'Controller';
             $actionMethod    = implode('', array_map('ucfirst', explode('-', $actionParam)))     . 'Action';
             $actionMethod    = strtolower(substr($actionMethod, 0, 1)) . substr($actionMethod, 1);
 
             $response = $this->getResponse();
+
             /** @var $controller AbstractAction */
             $controller = $this->controller($controllerParam);
-            // = new $controllerClass($request, $response)
 
             $classMethods = get_class_methods($controller);
 
@@ -224,26 +222,28 @@ class Application
                 $controller->preDispatch();
             }
 
-            $forward = $controller->getForward();
-            if (!$controller->getBreakRun() && empty($forward)) {
+            if (!$controller->getForward()) {
                 $actionResponse = $controller->$actionMethod();
+            }
 
+            if (!$controller->getBreakRun() && !$controller->getForward()) {
                 if (in_array('postDispatch', $classMethods)) {
                     $controller->postDispatch($actionResponse);
                 }
             }
-            /*
-            if (!empty($forward)) {
-                $request->setParams($forward);
+
+            // Перенаправляем пользователя
+            if ($controller->getForward()) {
+                $request->setParams($controller->getForward());
                 $controller->removeForward();
                 return $this->dispatch($request, $response);
-            }*/
+            }
+
             return $response;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $response = $this->getResponse();
             $response->setException($e);
         }
-
 
         return $response;
         //return false;

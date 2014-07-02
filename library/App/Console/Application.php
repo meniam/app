@@ -139,7 +139,6 @@ class Application extends \App\Mvc\Application
             return $this->getConsoleUsageFull();
         }
 
-
         $controller = (new DashToCamelCase())->filter($cliParams[0]);
         $action     = (new DashToCamelCase())->filter($cliParams[1]);
 
@@ -154,6 +153,7 @@ class Application extends \App\Mvc\Application
                 $usage = array(null);
             }
             array_shift($usage);
+
 
             $matchParams = array();
             foreach ($usage as $k => $v) {
@@ -387,7 +387,7 @@ class Application extends \App\Mvc\Application
     {
         if (!$this->getRequest()->getParam('controller')) {
             $console = Console::getInstance();
-            $modules = array('screenshot');
+            $modules = array('screenshot', 'parser');
 
             $usageInfo = array(
                 array( '--thread=<int>'          , 'current thread'    , 'Current thread number' ),

@@ -20,6 +20,13 @@ class Request
     private $rawBody;
 
     /**
+     * Базовый хост от которого искать поддомены
+     *
+     * @var null
+     */
+    private static $baseHost = null;
+
+    /**
      * _GET clone
      *
      * @var array
@@ -346,8 +353,13 @@ class Request
      */
     public function getSubdomain($default = null)
     {
-        $domainArray = array_slice(explode('.', $this->getHttpHost()), 0, -2);
-        $domain = reset($domainArray);
+        if (self::getBaseHost()) {
+            $domain = trim(str_replace(self::getBaseHost(), '', $this->getBaseHost()), '.');
+        } else {
+            $domainArray = array_slice(explode('.', $this->getHttpHost()), 0, -2);
+            $domain      = reset($domainArray);
+        }
+
         return $domain ? $domain : $default;
     }
 
@@ -369,4 +381,21 @@ class Request
 
         return $ip;
     }
+
+    /**
+     * @return null
+     */
+    public static function getBaseHost()
+    {
+        return self::$baseHost;
+    }
+
+    /**
+     * @param null $baseHost
+     */
+    public static function setBaseHost($baseHost)
+    {
+        self::$baseHost = $baseHost;
+    }
+
 }

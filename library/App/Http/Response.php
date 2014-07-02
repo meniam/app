@@ -474,10 +474,10 @@ class Response
     /**
      * Register an exception with the response
      *
-     * @param Exception $e
-     * @return Zend_Controller_Response_Abstract
+     * @param \Exception $e
+     * @return $this
      */
-    public function setException(Exception $e)
+    public function setException(\Exception $e)
     {
         $this->_exceptions[] = $e;
         return $this;

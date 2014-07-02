@@ -81,6 +81,25 @@ abstract class  AbstractAction
     }
 
     /**
+     * @param       $action
+     * @param       $controller
+     * @param array $params
+     *
+     * @return array
+     */
+    public function forward($action, $controller = null, $params = array())
+    {
+        $params = (array)$params;
+
+        $params['controller'] = $controller ? $controller : $this->getRequest()->getParam('controller');
+        $params['action']     = $action;
+
+        $this->setForward($params);
+
+        return $params;
+    }
+
+    /**
      * @param array|null $forward
      * @return $this
      */

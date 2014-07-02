@@ -149,8 +149,8 @@ class Curl
         $this->setOpt(CURLOPT_HEADER, 1);
         $this->setOpt(CURLOPT_RETURNTRANSFER, 1);
         $this->setOpt(CURLOPT_FOLLOWLOCATION, 0);
-        $this->setOpt(CURLOPT_TIMEOUT, 5);
-        //$this->setOpt(CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.0.5) Gecko/2008120122 Firefox/3.1.5');
+        $this->setOpt(CURLOPT_TIMEOUT, 10);
+
         $this->rotateUserAgent();
     }
 
@@ -161,9 +161,9 @@ class Curl
             return;
         }
 
-        $this->setOpt(CURLOPT_USERAGENT, $this->_userAgents[rand(0, count($this->_userAgents)-1)]);
+        $userAgentNum = rand(0, count($this->_userAgents)-1);
+        curl_setopt($this->getHandler(), CURLOPT_USERAGENT, $this->_userAgents[$userAgentNum]);
     }
-
 
     public function close()
     {
@@ -265,8 +265,8 @@ class Curl
     public function parseResult($contents, $encoding = null)
     {
         $splitArray = preg_split("#\r?\n\r?\n#", $contents, 2);
+
         if (count($splitArray) == 2) {
-        //list($this->_data['header'], $this->_data['body']) = preg_split("#\r?\n\r?\n#", $contents, 2);
             $this->_data['header'] = $splitArray[0];
             $this->_data['body'] = $splitArray[1];
         } else {

@@ -119,6 +119,9 @@ class Element
 
     /**
      * Получить массив
+     *
+     * @param bool $withChild
+     *
      * @return mixed
      */
     public function getErrors($withChild = true)
@@ -1039,7 +1042,7 @@ class Element
             foreach ($value as &$v) {
                 $v = realpath($v);
 
-                if (empty($v)) {
+                if (!is_dir($v)) {
                     throw new InvalidArgumentException('View path not exists');
                 }
             }
