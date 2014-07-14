@@ -1,0 +1,7 @@
+{% extends "element.twig" %}
+
+{% block input %}{% spaceless %}
+    {% for value in input.value %}
+        <input {{ block('attributes') }} value="{{ value }}" />
+    {% endfor %}
+{% endspaceless %}{% endblock input %}

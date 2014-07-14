@@ -1,0 +1,5 @@
+{% use "element.twig" with label as parent_label %}
+
+{% block label %}{% spaceless %}
+    {{ block('parent_label') }}
+{% endspaceless %}{% endblock %}

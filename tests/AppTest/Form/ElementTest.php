@@ -16,57 +16,6 @@ use Zend\Validator\NotEmpty;
 
 class ElementTest extends ParentTestCase
 {
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testRenderLabel()
-    {
-        $factory = new Factory();
-
-        $element = $factory->create(array(
-            'type' => 'App\Form\Element',
-            'options' => array(
-                'view_path' => FIXTURES_PATH . '/Form/decorators/',
-                'multiple' => true,
-                'validators' => array(
-                    'Zend\Validator\Digits'
-                )
-            ),
-            'attributes' => array(
-                'id'   => 'id_name',
-                'name' => 'var_name',
-                'class' => 'input p_input',
-                'value' => '<some value "here">',
-                'label' => 'Some label name',
-                'label_class' => 'test'
-            )
-        ));
-
-        $this->assertEquals(array('class' => 'test'), $element->getLabelAttributes());
-
-        $element->setDecorator('input_values');
-        $this->assertEquals('<label for="id_name">Some label name</label>' . "\n", $element->renderLabel());
-        $this->assertEquals('<h1>Some label name</h1>' . "\n", $element->renderLabel(null, 'multiple_input_context/input_context/label_context'));
-        $factory = new Factory();
-
-        $element->setDecorator('label');
-        $this->assertEquals('<label for="id_name">Some label name</label>' . "\n", $element->renderLabel());
-
-        $element->setDecorator('label2');
-        $this->assertEquals('<label for="id_name">Some label name</label>' . "\n", $element->renderLabel());
-
-        $element->setDecorator('label3');
-        $this->assertEquals('<label for="id_name">Some label name</label>' . "\n", $element->renderLabel());
-
-        $element->setDecorator('label4');
-        $this->assertEquals('<label for="id_name">Some label name</label>' . "\n", $element->renderLabel());
-
-        $element->setDecorator(null);
-        $this->assertEquals('', $element->renderLabel());
-
-        $element->setDecorator('label4');
-        $this->assertEquals('', $element->renderLabel(null, 'unknown'));
-    }
 
     public function testType()
     {
@@ -78,26 +27,6 @@ class ElementTest extends ParentTestCase
     }
 
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testGetView()
-    {
-        $factory = new Factory();
-
-        $element = $factory->create(array(
-            'type' => 'App\Form\Element',
-            'options' => array(
-                'view_path' => FIXTURES_PATH . '/Form/decorators/')
-        ));
-
-        $getViewMethod = self::getMethod($element, 'getView');
-        $view = $getViewMethod->invokeArgs($element, array('test'));
-        $this->assertInstanceOf('Blitz', $view);
-
-        // must throw an exception
-        $getViewMethod->invokeArgs($element, array('test_unknown'));
-    }
 
 
     public function testSetValueOptions()

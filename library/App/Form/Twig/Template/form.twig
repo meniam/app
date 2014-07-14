@@ -1,0 +1,11 @@
+{% block form_start %}{% spaceless %}
+<form>
+{% endspaceless %}{% endblock %}
+
+{% block form_body %}{% spaceless %}
+{{ body|raw }}
+{% endspaceless %}{% endblock %}
+
+{% block form_end %}{% spaceless %}
+</form>
+{% endspaceless %}{% endblock %}

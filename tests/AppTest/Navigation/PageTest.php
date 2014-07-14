@@ -71,6 +71,7 @@ class PageTest extends ParentTestCase
         $this->assertEquals('/test_parent/', $page->getParent()->getHref());
     }
 
+    /*
     public function testUrlBuilder()
     {
         $page = new Page(array('route' => 'index'));
@@ -88,7 +89,7 @@ class PageTest extends ParentTestCase
         $page->setUrlBuilder($urlBuilder);
 
         $this->assertEquals('/page/about/', $page2->getHref());
-    }
+    }*/
 
     public function testOrder()
     {

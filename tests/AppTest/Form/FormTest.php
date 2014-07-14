@@ -16,6 +16,31 @@ class FormTest extends ParentTestCase
         $this->assertInstanceOf('App\Form\Form', $element);
     }
 
+//    /**
+//     * @group shit
+//     */
+//    public function testSomeShit()
+//    {
+//
+//        $form = new Form('fuck');
+//
+//
+//        $element = new Element('test');
+//        $element->setTitle('test')
+//                ->setLabel('Hello')
+//                ->setId('nice')
+//                ->setDecorator('input')
+//                ->setPlaceholder('Привет мир')
+//                ->setIsMultiple(true)
+//                ->setValue(array('test', 'test2', ""));
+//        $form->add($element);
+//
+//        echo $form->render('form');
+//        echo "a";
+//        die;
+//    }
+
+
     public function testSetters()
     {
         $element = new Form('test');

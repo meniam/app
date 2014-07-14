@@ -1,0 +1,21 @@
+{% block label %}{% spaceless %}
+    {% if label.text != false %}
+        <label{% if label.id != '' %} for="{{ label.id }}"{% endif %}>{{ label.text }}</label>
+    {% endif %}
+{% endspaceless %}{% endblock %}
+
+{% block input %}{% spaceless %}
+    {% block attributes %}{% spaceless %}
+        {% for attribute in input.attributes %}{{ attribute.name }}="{{ attribute.value }}" {% endfor %}
+    {% endspaceless %}{% endblock %}
+{% endspaceless %}{% endblock input %}
+
+{% block messages %}{% spaceless %}
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message.message|e }} [{{ message.code|e }}]</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endspaceless %}{% endblock %}

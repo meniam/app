@@ -1,17 +1,13 @@
 <?php
 
-
 namespace App\Form;
 
 use App\Filter\Filter;
 use App\Form\Exception\InvalidArgumentException;
-use App\Validator\Validator;
-use Model\Mysql\AbstractModel;
 use Model\Result\Result;
 use Model\Validator\ValidatorSet;
 use Traversable;
 use Zend\Filter\AbstractFilter;
-use Zend\InputFilter\InputFilter;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Validator\AbstractValidator;
 
@@ -88,68 +84,13 @@ class Element
      */
     protected $valueOptions = array();
 
-    /**
-     * @param        $message
-     * @param string $code
-     * @param string $field
-     *
-     * @return $this
-     */
-    public function addError($message, $code = 'general', $field = 'global')
-    {
-        $this->errors[(string) $field][(string) $code] = (string)$message;
-        return $this;
-    }
+    protected $multiplePosition;
 
     /**
-     * @param array $errorList
-     *
-     * @return $this
+     * @var
      */
-    public function addErrorList(array $errorList)
-    {
-        foreach ($errorList as $field => $messageList) {
-            foreach ($messageList as $code => $message) {
-                $this->addError($message, $code, $field);
-            }
-        }
+    private $twig;
 
-        return $this;
-    }
-
-    /**
-     * Получить массив
-     *
-     * @param bool $withChild
-     *
-     * @return mixed
-     */
-    public function getErrors($withChild = true)
-    {
-        return $this->getErrorList();
-    }
-
-    /**
-     * @return array
-     */
-    public function getErrorList()
-    {
-        return $this->errors;
-    }
-
-    /**
-     * @param ValidatorSet $validatorSet
-     *
-     * @return $this
-     */
-    public function addErrorFromValidatorSet(ValidatorSet $validatorSet)
-    {
-        if ($messageList = $validatorSet->getMessageList()) {
-            return $this->addErrorList($messageList);
-        }
-
-        return $this;
-    }
 
     /**
      * @param  null|int|string  $name    Optional name for the element
@@ -358,40 +299,6 @@ class Element
     }
 
     /**
-     * Get defined options
-     *
-     * @return array
-     */
-    public function getOptions()
-    {
-        return $this->options;
-    }
-
-    /**
-     * Set options for an element. Accepted options are:
-     *
-     * @param  array|Traversable $options
-     * @return Element
-     * @throws Exception\InvalidArgumentException
-     */
-    public function setOptions($options)
-    {
-        if ($options instanceof Traversable) {
-            $options = ArrayUtils::iteratorToArray($options);
-        } elseif (!is_array($options)) {
-            throw new InvalidArgumentException(
-                'The options parameter must be an array or a Traversable'
-            );
-        }
-
-        foreach ($options as $k => $v) {
-            $this->setOption($k, $v);
-        }
-
-        return $this;
-    }
-
-    /**
      * Remove a single attribute
      *
      * @param string $key
@@ -478,6 +385,25 @@ class Element
     }
 
     /**
+     * @return array|Traversable
+     */
+    public function getInputAttributes()
+    {
+        $attributes = $this->getAttributes();
+
+        foreach ($attributes as $attribute => $value) {
+            if (substr($attribute, 0, 6) == 'label_' ||
+                $attribute == 'label') {
+                unset($attributes[$attribute]);
+            }
+        }
+
+        $attributes['name'] = $this->getInputName();
+
+        return $attributes;
+    }
+
+    /**
      * @param null|string $decorator
      * @return string
      */
@@ -487,152 +413,38 @@ class Element
             return '';
         }
 
-        $view = $this->getView($decorator);
-
-        // Если не находим нужных контекстов, то возвращаем пустую строку
-        if (!$view->hasContext('input_context') && !$view->hasContext('multiple_input_context')) {
-            return '';
-        }
+        $twig = $this->getTwig();
 
         // Label Atributes это атрибуты начинающиеся с label_ (только эту часть мы вырезаем)
         $labelAttributes = $this->getLabelAttributes();
-        $labelData = array('id' => $this->getId(), 'label' => $this->getLabel());
+        $labelData = array('id' => $this->getId(), 'text' => $this->getLabel());
 
         if (!empty($labelAttributes)) {
             $labelData = array_merge($labelData, $labelAttributes);
         }
 
-        ///////////////////////////////////////////////////////////////////////////////////
-        // Рендеринг Single элемента
-        ///////////////////////////////////////////////////////////////////////////////////
-        if ($view->hasContext('input_context')) {
-            $data = $this->toArray();
-
-            // Рендерим контекст элемента
-            $view->block('input_context', $this->toArray());
-
-            // Рендерим label
-            if ($view->hasContext('input_context/label_context')) {
-                $view->block('input_context/label_context', $labelData);
-            }
-
-            // Рендерим значения
-            if ($view->hasContext('input_context/value_context')) {
-                //$values = $this->getValue();
-                $dataValues = $this->getValueAsString();
-                foreach ((array)$dataValues as $k => $v) {
-                    $view->block('input_context/value_context', array('key' => $k, 'value' => $v));
-                }
-            }
-
-            // Рендерим варианты значения
-            if ($view->hasContext('input_context/value_option_context')) {
-                $valueOptions = $this->getValueOptions();
-                foreach ($valueOptions as $k => $v) {
-                    $isSelected = false;
-                    $dataValues = $this->getValue();
-                    foreach ((array)$dataValues as $dataValue) {
-                        if ($k == $dataValue) {
-                            $isSelected = true;
-                            break;
-                        }
-                    }
-                    $view->block('input_context/value_option_context', array('key' => $k, 'value' => $v, 'selected' => $isSelected));
-                }
-            }
-
-            // Рендерим сообщения об ошибке для одного элемента
-            if ($view->hasContext('input_context/message_context')) {
-                $errorList = $this->getErrorList();
-                foreach ($errorList as $field => $messages) {
-                    foreach ($messages as $code => $message) {
-                        $view->block('input_context/message_context', array('field' => $field, 'code' => $code, 'message' => $message));
-                    }
-                }
-            }
-        }/** else
-
-        ///////////////////////////////////////////////////////////////////////////////////
-        // Рендеринг Multiple элементов
-        ///////////////////////////////////////////////////////////////////////////////////
-        if ($view->hasContext('multiple_input_context')) {
-            // рендеринг multiple_input
-            $values = $this->getValue();
-            $view = $this->getView($decorator);
-
-            // Рендерим label
-            if ($view->hasContext('/multiple_input_context/label_context')) {
-                $view->block('/multiple_input_context/label_context', $labelData);
-            }
-
-            $this->isValid();
-            // Рендерим общие сообщения об ошибке
-            if ($view->hasContext('multiple_input_context/message_context')) {
-                $errorList = $this->getErrorList();
-                foreach ($errorList as $field => $messages) {
-                    foreach ($messages as $code => $message) {
-                        $view->block('multiple_input_context/message_context', array('field' => $field, 'code' => $code, 'message' => $message));
-                    }
-                }
-            }
-
-            foreach ($values as $k => $value) {
-                $elementArray = $this->toArray();
-                $elementArray['value'] = $value;
-
-                $view->block('multiple_input_context/input_context', $elementArray);
-
-                if ($view->hasContext('multiple_input_context/input_context/label_context')) {
-                    $view->block('multiple_input_context/input_context/label_context', $labelData);
-                }
-
-                if ($messageList = $this->getMessages($k)) {
-                    foreach ($messageList as $code => $message) {
-                        $view->block('multiple_input_context/input_context/message_context', array('code' => $code, 'message' => $message));
-                    }
-                }
-            }
-        }*/
-        return $view->parse();
-    }
-
-    /**
-     * @param null $decorator
-     * @param null $context
-     * @return string
-     * @throws Exception\InvalidArgumentException
-     */
-    public function renderLabel($decorator = null, $context = null)
-    {
-        if (!$decorator && !($decorator = $this->getDecorator())) {
-
-            return '';
-        }
-
-        $view = $this->getView($decorator);
-        $labelData = array('id' => $this->getId(), 'label' => $this->getLabel());
-
-        $result = '';
-
-        if ($context) {
-            if ($view->hasContext($context)) {
-                return $view->fetch($context, $labelData);
-            } else {
-                throw new InvalidArgumentException('Unknown context - ' . $context);
+        $errorList = $this->getErrorList();
+        $messages  = null;
+        foreach ($errorList as $field => $messageList) {
+            foreach ($messageList as $code => $message) {
+                $messages[] = array('field' => $field, 'code' => $code, 'message' => $message);
             }
         }
 
-        if ($view->hasContext('label_context')) {
-            $result = $view->fetch('label_context', $labelData);
-        } elseif ($view->hasContext('input_context/label_context')) {
-            $result = $view->fetch('input_context/label_context', $labelData);
-        } elseif ($view->hasContext('multiple_input_context/label_context')) {
-            $result = $view->fetch('multiple_input_context/label_context', $labelData);
-        } elseif ($view->hasContext('multiple_input_context/input_context/label_context')) {
-            $result = $view->fetch('multiple_input_context/input_context/label_context', $labelData);
+        $attributes = array();
+        foreach ($this->getInputAttributes() as $k => $v) {
+            $attributes[] = array('name' => $k, 'value' => $v);
         }
 
-        return $result;
+
+        $data = array('label' => $labelData,
+                      'input' => array('attributes' => $attributes,
+                                       'value_options' => $this->getValueOptions(),
+                                       'value' => (array)$this->getValue()),
+                      'messages' => $messages);
+
+        return $twig->render($decorator . '.twig',
+                            $data);
     }
 
     /**
@@ -677,25 +489,31 @@ class Element
         return $this->attributes[$key];
     }
 
-    /**
-     * @param $decorator
-     * @throws Exception\InvalidArgumentException
-     * @return \App\Mvc\View
-     */
-    protected function getView($decorator)
+    public function setTwig($twig)
     {
-        $viewPathArray = $this->getViewPath();
-        $filename = $decorator . '.phtml';
+        $this->twig = $twig;
+        return $this;
+    }
 
-        foreach ($viewPathArray as $viewPath) {
-            if (is_file($viewPath . DIRECTORY_SEPARATOR . $filename)) {
-                ini_set('blitz.path', $viewPath . DIRECTORY_SEPARATOR);
-                return new \App\Mvc\View($filename, $viewPath . DIRECTORY_SEPARATOR);
+    protected function getTwig()
+    {
+        if (!$this->twig) {
+
+            if (empty($this->getViewPath())) {
+                $viewPath = array(__DIR__ . '/Twig/Template');
+            } else {
+                $viewPath = $this->getViewPath();
             }
+            $loader = new \Twig_Loader_Filesystem($viewPath);
+
+            $this->twig = new \Twig_Environment($loader, array(
+                //'cache' => '/tmp',
+            ));
         }
 
-        throw new InvalidArgumentException('Decorator ' . $decorator . ' not found in path');
+        return $this->twig;
     }
+
     /**
      * Получить пути где лежат декораторы
      *
@@ -800,7 +618,8 @@ class Element
                 if (is_array($messageList)) {
                     foreach ($messageList as $code => $message) {
                         $array['errors'][] = array(
-                            'code' => $code,
+                            'field'   => $field,
+                            'code'    => $code,
                             'message' => $message
                         );
                     }
@@ -820,9 +639,6 @@ class Element
     {
         return $this->getAttribute('name');
     }
-
-
-    protected $multiplePosition;
 
     /**
      * @param mixed $multiplePosition
@@ -912,6 +728,9 @@ class Element
         return isset($values[1]) ? $values : reset($values);
     }
 
+    /**
+     * @return string
+     */
     public function getValueAsString()
     {
         $value = $this->getValue();
@@ -922,9 +741,13 @@ class Element
         return (string)$this->getValue();
     }
 
+    /**
+     * @return $this
+     */
     public function removeValue()
     {
         $this->value = array();
+        return $this;
     }
 
     /**
@@ -1056,21 +879,7 @@ class Element
             if (!is_array($value)) {
                 throw new InvalidArgumentException('Filters must be an array');
             }
-
-            /*foreach ($value as $filter) {
-                $this->addFilter($filter);
-            }*/
-        }/* elseif ($name == 'validators') {
-            $this->options['validators'] = array();
-
-            if (!is_array($value)) {
-                throw new InvalidArgumentException('Validators must be an array');
-            }
-
-            foreach ($value as $validator) {
-                $this->addValidator($validator);
-            }
-        } */ else {
+        } else {
             $this->options[(string)$name] = $value;
         }
         return $this;
@@ -1137,181 +946,6 @@ class Element
         }
         return $this;
     }
-
-    /**
-     * @param $filters
-     * @return $this
-    public function setFilters($filters)
-    {
-        $this->options['filters'] = array();
-
-        foreach ($filters as $filter) {
-            $this->addFilter($filter);
-        }
-
-        return $this;
-    }
-     */
-
-    /**
-     * @param       $type
-     * @param array $params
-     * @throws Exception\InvalidArgumentException
-     * @internal param $filter
-     * @return $this
-    public function addFilter($type, array $params = null)
-    {
-        if (is_array($type)) {
-            if (is_int(key($type))) {
-                $filter = array('type' => $type[0],
-                                'params' => (isset($type[1]) ? $type[1] : array()));
-            } elseif (isset($type['type'])) {
-                if (!isset($type['params'])) {
-                    $type['params'] = array();
-                }
-                $filter = $type;
-            } else {
-                throw new InvalidArgumentException('Unknown type');
-            }
-            $this->dirtyFilters = true;
-        } elseif (is_scalar($type)) {
-            $params = empty($params) ? array() : $params;
-
-            $filter = array('type' => (string) $type,
-                            'params' => $params);
-            $this->dirtyFilters = true;
-        } elseif ($type instanceof AbstractFilter) {
-            $filter = $type;
-        } else {
-            throw new InvalidArgumentException('Unknown type');
-        }
-
-        $this->addOption('filters', $filter);
-        return $this;
-    }
-     */
-
-    /**
-     * @param $name
-     * @param $value
-     * @return Element
-     */
-    public function addOption($name, $value)
-    {
-        $name = (string)$name;
-        if (isset($this->options[$name]) && !is_array($this->options[$name])) {
-            $this->options[$name] = array($this->options[$name]);
-        }
-
-        $this->options[$name][] = $value;
-        return $this;
-    }
-
-    /**
-     * @param $filter
-     * @return bool
-    public function hasFilter($filter)
-    {
-        if ($filters = $this->getOption('filters')) {
-            foreach ($filters as $_filter) {
-                if ($filter == $_filter) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-     */
-
-    /**
-     * @param null|object $filter
-     * @return null
-    public function getFilter($filter = null)
-    {
-        if ($filter && $filters = $this->getOption('filters')) {
-            foreach ($filters as $_filter) {
-                if ($filter == $_filter) {
-                    return $_filter;
-                }
-            }
-            return null;
-        } else {
-            return $this->getFilters();
-        }
-    }
-     */
-
-    /**
-     * @param       $type
-     * @param array $params
-     * @throws Exception\InvalidArgumentException
-     * @return $this
-    public function addValidator($type, array $params = null)
-    {
-        if (is_array($type)) {
-            if (is_int(key($type))) {
-                $validator = array('type' => $type[0],
-                                'params' => (isset($type[1]) ? $type[1] : array()));
-            } elseif (isset($type['type'])) {
-                $validator = $type;
-            }
-            $this->dirtyValidators = true;
-        } elseif (is_scalar($type)) {
-            $params = empty($params) ? array() : $params;
-
-            $validator = array('type' => (string) $type,
-                            'params' => $params);
-            $this->dirtyValidators = true;
-        } elseif ($type instanceof AbstractValidator) {
-            $validator = $type;
-        } elseif ($type instanceof InputFilter) {
-            $validator = $type;
-        }
-
-        if (!isset($validator)) {
-            throw new InvalidArgumentException('Unknown type');
-        }
-
-        $this->addOption('validators', $validator);
-        return $this;
-    }
-     */
-
-    /**
-     * @param $validator
-     * @return bool
-    public function hasValidator($validator)
-    {
-        if ($validators = $this->getValidators()) {
-            foreach ($validators as $_validator) {
-                if ($validator == $_validator) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-     */
-
-    /**
-     * @param null|object $validator
-     * @return null
-    public function getValidator($validator = null)
-    {
-        if ($validator && $validators = $this->getValidators()) {
-            foreach ($validators as $_validator) {
-                if ($validator == $_validator) {
-                    return $_validator;
-                }
-            }
-            return null;
-        } else {
-            return $this->getValidators();
-        }
-    }
-     */
 
     /**
      * Retrieve the element value
@@ -1407,66 +1041,6 @@ class Element
     }
 
     /**
-     * Get validation error messages, if any.
-     *
-     * Returns a list of validation failure messages, if any.
-     *
-     * @param null $valueNumber
-     * @return array
-    public function getMessages($valueNumber = null)
-    {
-        if (is_null($valueNumber)) {
-            return $this->messages;
-        } elseif (isset($this->messages[$valueNumber])) {
-            return $this->messages[$valueNumber];
-        } else {
-            return array();
-        }
-    }
-     */
-
-    /**
-     * Set a list of messages to report when validation fails
-     *
-     * @param  array|Traversable $messages
-     * @param int                $valueNumber
-     * @throws Exception\InvalidArgumentException
-     * @return Element
-    public function setMessages($messages, $valueNumber = 0)
-    {
-        if (!is_array($messages) && !$messages instanceof Traversable) {
-            throw new Exception\InvalidArgumentException(sprintf(
-                '%s expects an array or Traversable object of validation error messages; received "%s"',
-                __METHOD__,
-                (is_object($messages) ? get_class($messages) : gettype($messages))
-            ));
-        }
-
-        $this->messages[$valueNumber] = $messages;
-        return $this;
-    }
-
-    public function addMessages(array $messages)
-    {
-        foreach ($messages as $k => $v) {
-            $this->messages[$k] = $v;
-        }
-
-        return $this;
-    }
-     */
-
-
-    /**
-     * @return $this
-    public function clearMessages()
-    {
-        $this->messages = array();
-        return $this;
-    }
-     */
-
-    /**
      * @param Result $result
      * @return $this
      */
@@ -1503,7 +1077,6 @@ class Element
      * @param      $name
      *
      * @return Element|Fieldset|Form|bool
-     */
     public function getChild($name)
     {
         if (isset($this->iterator)) {
@@ -1515,5 +1088,117 @@ class Element
         }
         return false;
     }
+     */
 
+    /**
+     * Get defined options
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+
+    /**
+     * Set options for an element. Accepted options are:
+     *
+     * @param  array|Traversable $options
+     * @return Element
+     * @throws Exception\InvalidArgumentException
+     */
+    public function setOptions($options)
+    {
+        if ($options instanceof Traversable) {
+            $options = ArrayUtils::iteratorToArray($options);
+        } elseif (!is_array($options)) {
+            throw new InvalidArgumentException(
+                'The options parameter must be an array or a Traversable'
+            );
+        }
+
+        foreach ($options as $k => $v) {
+            $this->setOption($k, $v);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     * @return Element
+     */
+    public function addOption($name, $value)
+    {
+        $name = (string)$name;
+        if (isset($this->options[$name]) && !is_array($this->options[$name])) {
+            $this->options[$name] = array($this->options[$name]);
+        }
+
+        $this->options[$name][] = $value;
+        return $this;
+    }
+
+    /**
+     * @param        $message
+     * @param string $code
+     * @param string $field
+     *
+     * @return $this
+     */
+    public function addError($message, $code = 'general', $field = 'global')
+    {
+        $this->errors[(string) $field][(string) $code] = (string)$message;
+        return $this;
+    }
+
+    /**
+     * @param array $errorList
+     *
+     * @return $this
+     */
+    public function addErrorList(array $errorList)
+    {
+        foreach ($errorList as $field => $messageList) {
+            foreach ($messageList as $code => $message) {
+                $this->addError($message, $code, $field);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Получить массив
+     *
+     * @return mixed
+     */
+    public function getErrors()
+    {
+        return $this->getErrorList();
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrorList()
+    {
+        return $this->errors;
+    }
+
+    /**
+     * @param ValidatorSet $validatorSet
+     *
+     * @return $this
+     */
+    public function addErrorFromValidatorSet(ValidatorSet $validatorSet)
+    {
+        if ($messageList = $validatorSet->getMessageList()) {
+            return $this->addErrorList($messageList);
+        }
+
+        return $this;
+    }
 }

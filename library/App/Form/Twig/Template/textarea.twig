@@ -1,0 +1,7 @@
+{% extends "element.twig" %}
+
+{% block input %}{% spaceless %}
+    {% for value in values %}
+        <textarea {{ block('attributes') }}>{{ value }}</textarea>
+    {% endfor %}
+{% endspaceless %}{% endblock input %}
